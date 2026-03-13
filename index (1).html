@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DB Trainer — Databank Relaties</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0f4ff;--surface:#fff;--card:#f8faff;--border:#dde3f5;--shadow:rgba(99,120,220,.12);--primary:#3b5bdb;--primary-light:#e8ecfb;--green:#2f9e44;--green-light:#d3f9d8;--red:#c92a2a;--red-light:#ffe3e3;--yellow:#e67700;--yellow-light:#fff3bf;--purple:#7048e8;--purple-light:#f3f0ff;--teal:#0c8599;--teal-light:#e3fafc;--text:#1a1f36;--text-mid:#4a5080;--text-muted:#8890b5;--radius:14px;--radius-sm:8px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh}
+body::before,body::after{content:'';position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+body::before{width:600px;height:600px;background:radial-gradient(circle,rgba(59,91,219,.06) 0%,transparent 70%);top:-200px;right:-100px}
+body::after{width:500px;height:500px;background:radial-gradient(circle,rgba(112,72,232,.05) 0%,transparent 70%);bottom:-150px;left:-100px}
+header{position:relative;z-index:100;background:var(--surface);border-bottom:2px solid var(--border);padding:0 24px;display:flex;align-items:stretch;gap:0;box-shadow:0 2px 16px var(--shadow)}
+.header-logo{display:flex;align-items:center;gap:10px;padding:14px 20px 14px 0;border-right:2px solid var(--border);margin-right:12px;text-decoration:none}
+.logo-icon{width:38px;height:38px;background:var(--primary);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.logo-text{font-size:1.1rem;font-weight:900;color:var(--text);letter-spacing:-.5px}
+.logo-text span{color:var(--primary)}
+.header-tabs{display:flex;align-items:stretch;gap:2px;flex:1}
+.htab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0 14px;border:none;background:transparent;cursor:pointer;font-family:'Nunito',sans-serif;font-size:1.25rem;color:var(--text-muted);border-bottom:3px solid transparent;transition:all .18s;white-space:nowrap;position:relative;bottom:-2px;min-width:52px}
+.htab:hover{color:var(--primary);background:var(--primary-light)}
+.htab.active{color:var(--primary);border-bottom-color:var(--primary);background:var(--primary-light)}
+.htab-label{font-size:.62rem;font-weight:800;color:inherit;letter-spacing:.2px;text-transform:uppercase;line-height:1}
+.header-score{display:flex;align-items:center;gap:10px;padding:0 0 0 16px;border-left:2px solid var(--border);margin-left:12px}
+.score-chip{display:flex;align-items:center;gap:6px;background:var(--card);border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:.82rem;font-weight:800;color:var(--text-mid)}
+.score-chip .val{color:var(--primary);font-family:'JetBrains Mono',monospace}
+.level-chip{background:linear-gradient(135deg,var(--primary),var(--purple));color:#fff;border-radius:20px;padding:5px 12px;font-size:.82rem;font-weight:800;letter-spacing:.5px}
+main{position:relative;z-index:5;max-width:860px;margin:0 auto;padding:28px 20px 80px}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.section-header{margin-bottom:22px}
+.section-title{font-size:1.5rem;font-weight:900;color:var(--text);letter-spacing:-.5px;margin-bottom:4px}
+.section-sub{font-size:.9rem;color:var(--text-muted);font-weight:600}
+.progress-row{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.progress-track{flex:1;height:8px;background:var(--border);border-radius:10px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--purple));border-radius:10px;transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.progress-label{font-size:.8rem;font-weight:800;color:var(--text-muted);white-space:nowrap}
+.streak-row{display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.streak-label{font-size:.78rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.streak-dots{display:flex;gap:5px}
+.sdot{width:14px;height:14px;border-radius:50%;background:var(--border);transition:all .3s}
+.sdot.lit{background:var(--yellow);box-shadow:0 0 8px rgba(230,119,0,.5);transform:scale(1.15)}
+.scenario-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px 22px;margin-bottom:20px;position:relative;box-shadow:0 2px 12px var(--shadow)}
+.scenario-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:linear-gradient(180deg,var(--primary),var(--purple));border-radius:var(--radius) 0 0 var(--radius)}
+.sc-label{font-size:.7rem;font-weight:800;letter-spacing:2px;color:var(--primary);text-transform:uppercase;margin-bottom:8px;padding-left:2px}
+.sc-text{font-size:1rem;line-height:1.65;color:var(--text);font-weight:600}
+.diagram-area{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:28px 20px;margin-bottom:22px;display:flex;align-items:center;justify-content:center;gap:0;min-height:140px;box-shadow:inset 0 2px 8px rgba(0,0,0,.03)}
+.ent-box{background:var(--surface);border:2px solid var(--primary);border-radius:10px;padding:12px 18px;text-align:center;min-width:120px;box-shadow:0 2px 10px var(--shadow)}
+.ent-name{font-size:.95rem;font-weight:900;color:var(--primary)}
+.ent-attrs{font-size:.68rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;margin-top:6px;line-height:1.6;text-align:left}
+.rel-connector{flex:1;min-width:140px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 4px}
+.rel-line-wrap{width:100%;display:flex;align-items:center;gap:0}
+.rel-end{font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;color:var(--text-mid);padding:0 4px;white-space:nowrap}
+.rel-line{flex:1;height:3px;background:linear-gradient(90deg,var(--primary),var(--purple));border-radius:2px}
+.rel-name{font-size:.72rem;font-weight:700;color:var(--text-muted);background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.choices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px}
+.choice-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 10px;cursor:pointer;text-align:center;transition:all .15s;font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700;color:var(--text);box-shadow:0 1px 4px var(--shadow);position:relative;overflow:hidden}
+.choice-btn:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 14px var(--shadow)}
+.choice-btn.selected{border-color:var(--primary);background:var(--primary-light)}
+.choice-btn.correct{border-color:var(--green);background:var(--green-light);color:var(--green);animation:bounceIn .35s}
+.choice-btn.wrong{border-color:var(--red);background:var(--red-light);color:var(--red);animation:shakeX .4s}
+.choice-btn.reveal{border-color:var(--green);background:var(--green-light)}
+.choice-sublabel{display:block;font-size:.7rem;font-family:'Nunito',sans-serif;font-weight:700;color:var(--text-muted);margin-top:5px}
+.twopart{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.choice-group{flex:1;min-width:190px}
+.cg-label{font-size:.72rem;font-weight:800;letter-spacing:1.5px;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px}
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.feedback-box{border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:18px;display:none;font-size:.9rem;font-weight:700;line-height:1.5}
+.feedback-box.show{display:block;animation:fadeUp .25s}
+.feedback-box.ok{background:var(--green-light);border:2px solid var(--green);color:var(--green)}
+.feedback-box.bad{background:var(--red-light);border:2px solid var(--red);color:var(--red)}
+.feedback-box.warn{background:var(--yellow-light);border:2px solid var(--yellow);color:var(--yellow)}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{background:var(--primary);color:#fff;border:none;border-radius:var(--radius-sm);padding:11px 22px;font-family:'Nunito',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;transition:all .18s;letter-spacing:.3px;box-shadow:0 2px 10px rgba(59,91,219,.25)}
+.btn:hover:not(:disabled){background:#2f4ec4;transform:translateY(-1px);box-shadow:0 4px 16px rgba(59,91,219,.35)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn.ghost{background:transparent;border:2px solid var(--border);color:var(--text-muted);box-shadow:none}
+.btn.ghost:hover:not(:disabled){border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+.hint-box{background:var(--teal-light);border:2px solid var(--teal);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:16px;font-size:.88rem;font-weight:700;color:var(--teal);display:none;animation:fadeUp .25s}
+.hint-box.show{display:block}
+.quiz-options{display:flex;flex-direction:column;gap:9px;margin-bottom:20px}
+.quiz-opt{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s;font-size:.9rem;font-weight:700;box-shadow:0 1px 4px var(--shadow)}
+.quiz-opt:hover{border-color:var(--primary);background:var(--primary-light)}
+.quiz-opt.correct{border-color:var(--green);background:var(--green-light);color:var(--green)}
+.quiz-opt.wrong{border-color:var(--red);background:var(--red-light);color:var(--red)}
+.quiz-opt .letter{width:26px;height:26px;border-radius:6px;background:var(--card);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900;color:var(--text-muted);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+.qo-main{font-family:'JetBrains Mono',monospace;font-size:.9rem;color:var(--primary);display:block;margin-bottom:3px}
+.qo-desc{font-size:.78rem;color:var(--text-muted);font-family:'Nunito',sans-serif;font-weight:600}
+.conn-table-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:16px 0}
+.conn-table-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;cursor:pointer;transition:all .15s;text-align:center;user-select:none}
+.conn-table-card:hover{border-color:var(--primary);background:var(--primary-light);transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow)}
+.conn-table-card.conn-selected{border-color:var(--yellow);background:var(--yellow-light);box-shadow:0 0 0 3px rgba(230,119,0,.2)}
+.conn-table-card.conn-correct{border-color:var(--green);background:var(--green-light)}
+.conn-card-name{font-size:.88rem;font-weight:900;color:var(--text);margin-bottom:4px}
+.conn-card-sub{font-size:.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-weight:600}
+.conn-links-area{min-height:48px;display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.conn-empty{font-size:.83rem;font-weight:700;color:var(--text-muted);text-align:center;padding:14px;border:2px dashed var(--border);border-radius:var(--radius-sm)}
+.conn-link-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;animation:fadeUp .2s ease;flex-wrap:wrap}
+.conn-link-ent{background:var(--primary-light);color:var(--primary);border-radius:5px;padding:3px 10px;font-size:.82rem;font-weight:900}
+.conn-link-badge{background:var(--purple-light);color:var(--purple);border-radius:5px;padding:3px 10px;font-size:.82rem;font-weight:900;font-family:'JetBrains Mono',monospace}
+.conn-link-del{margin-left:auto;background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:.85rem;padding:2px 6px;border-radius:4px;transition:all .12s}
+.conn-link-del:hover{background:var(--red-light);color:var(--red)}
+.conn-inline-picker{background:var(--surface);border:2px solid var(--primary);border-radius:var(--radius);padding:14px 16px;box-shadow:0 8px 24px var(--shadow);animation:bounceIn .2s ease}
+.cip-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:.85rem;font-weight:900;color:var(--text-mid)}
+.cip-ent{background:var(--primary-light);color:var(--primary);border-radius:5px;padding:3px 10px;font-size:.82rem}
+.cip-choices{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.cip-btn{flex:1;min-width:60px;background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;cursor:pointer;transition:all .15s;font-family:'Nunito',sans-serif;text-align:center}
+.cip-btn:hover{border-color:var(--primary);background:var(--primary-light)}
+.cip-card{display:block;font-size:1rem;font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--primary)}
+.cip-cancel{background:transparent;border:none;font-size:.78rem;font-weight:800;color:var(--text-muted);cursor:pointer;padding:4px 0;font-family:'Nunito',sans-serif}
+.cip-cancel:hover{color:var(--red)}
+.norm-table-example{width:100%;border-collapse:collapse;font-size:.82rem;margin:12px 0;border-radius:8px;overflow:hidden;border:2px solid var(--border)}
+.norm-table-example th{background:var(--primary);color:#fff;padding:8px 12px;font-weight:800;text-align:left}
+.norm-table-example td{padding:7px 12px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--text-mid)}
+.norm-bad-cell{background:var(--red-light)!important;color:var(--red)!important;font-weight:700}
+.dr-tbl-block{flex:1;min-width:200px}
+.dr-tbl-name{font-size:.72rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.dr-tbl{width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:2px solid var(--border);font-size:.79rem;box-shadow:0 2px 8px var(--shadow)}
+.dr-tbl thead tr{background:var(--primary);color:#fff}
+.dr-tbl th{padding:6px 10px;font-weight:900;text-align:left;font-size:.76rem}
+.dr-tbl td{padding:5px 10px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--text-mid)}
+.dr-td-pk{color:var(--primary);font-weight:900}
+.dr-td-fk{color:var(--red);font-weight:800}
+.dr-tables-wrap{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.dr-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.dr-legend span{font-size:.76rem;font-weight:700;color:var(--text-muted)}
+.dr-legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}
+.dr-obs{background:var(--yellow-light);border:2px solid rgba(230,119,0,.3);border-radius:var(--radius-sm);padding:11px 15px;margin-bottom:14px;font-size:.84rem;font-weight:700;color:var(--text-mid);line-height:1.5;display:none}
+.dr-subq{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:10px}
+.dr-subq-txt{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:10px;line-height:1.5}
+.dr-choices{display:flex;gap:8px;flex-wrap:wrap}
+.dr-choice{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:9px 15px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:900;color:var(--text);transition:all .15s;text-align:center;box-shadow:0 1px 4px var(--shadow)}
+.dr-choice:hover{border-color:var(--primary);background:var(--primary-light);transform:translateY(-2px)}
+.dr-choice.sel{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+.dr-choice.ok{border-color:var(--green)!important;background:var(--green-light)!important;color:var(--green)!important}
+.dr-choice.fail{border-color:var(--red)!important;background:var(--red-light)!important;color:var(--red)!important}
+.dr-mode-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.dr-mode-tab{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:7px 16px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s;color:var(--text-muted);font-family:'Nunito',sans-serif}
+.dr-mode-tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.htab-locked{opacity:.35;cursor:not-allowed!important;pointer-events:auto;position:relative}
+.htab-locked::after{content:'🔒';position:absolute;top:4px;right:3px;font-size:.5rem;line-height:1}
+.exam-start-wrap{text-align:center;padding:28px 12px}
+.exam-start-icon{font-size:3.2rem;margin-bottom:10px}
+.exam-start-title{font-size:1.7rem;font-weight:900;letter-spacing:-.5px;margin-bottom:6px}
+.exam-start-sub{font-size:.92rem;color:var(--text-muted);font-weight:600;margin-bottom:24px;line-height:1.6}
+.exam-cfg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:11px;max-width:640px;margin:0 auto 24px;text-align:left}
+.exam-cfg-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:15px;cursor:pointer;transition:all .15s;position:relative}
+.exam-cfg-card:hover{border-color:var(--primary);background:var(--primary-light)}
+.exam-cfg-card.sel{border-color:var(--primary);background:var(--primary-light)}
+.exam-cfg-card.sel::after{content:'✓';position:absolute;top:9px;right:11px;font-weight:900;color:var(--primary)}
+.exam-cfg-icon{font-size:1.5rem;margin-bottom:7px}
+.exam-cfg-title{font-size:.88rem;font-weight:900;color:var(--text);margin-bottom:2px}
+.exam-cfg-desc{font-size:.72rem;color:var(--text-muted);font-weight:700}
+.exam-q-meta{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap}
+.exam-q-num{font-size:.8rem;font-weight:900;color:var(--text-muted)}
+.exam-type-badge{background:var(--primary-light);color:var(--primary);border-radius:20px;padding:3px 10px;font-size:.71rem;font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+.exam-results-wrap{text-align:center;padding:32px 12px}
+.exam-ring{width:130px;height:130px;border-radius:50%;margin:0 auto 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:8px solid var(--border)}
+.exam-ring-pct{font-size:2rem;font-family:'JetBrains Mono',monospace;font-weight:900}
+.exam-ring-lbl{font-size:.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px}
+.exam-breakdown{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;margin:18px 0;text-align:left}
+.exam-bd-item{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px}
+.exam-bd-type{font-size:.68rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.exam-bd-score{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:900}
+.exam-review{text-align:left;margin-top:18px}
+.exam-rv-item{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-sm);padding:10px 13px;margin-bottom:7px;display:flex;gap:9px;font-size:.83rem}
+.exam-rv-item.ok{border-color:var(--green)}.exam-rv-item.fail{border-color:var(--red)}
+.results-screen{text-align:center;padding:48px 20px}
+.results-title{font-size:2rem;font-weight:900;letter-spacing:-1px;margin-bottom:8px}
+.results-xp{font-family:'JetBrains Mono',monospace;font-size:3rem;font-weight:700;color:var(--primary);margin:16px 0}
+.results-sub{color:var(--text-muted);font-size:1rem;font-weight:600;margin-bottom:28px}
+.xp-toast{position:fixed;top:80px;right:24px;z-index:9999;background:linear-gradient(135deg,var(--primary),var(--purple));color:#fff;border-radius:20px;padding:10px 20px;font-weight:900;font-size:1rem;opacity:0;pointer-events:none;transform:translateY(0) scale(.8);transition:all .3s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 20px rgba(59,91,219,.4)}
+.xp-toast.pop{opacity:1;transform:translateY(-10px) scale(1)}
+.xp-toast.fade{opacity:0;transform:translateY(-30px) scale(.9);transition:all .5s ease}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-bottom:24px}
+.dash-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:0 2px 8px var(--shadow);transition:transform .15s}
+.dash-card:hover{transform:translateY(-2px)}
+.dash-card-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dash-card-icon{font-size:1.5rem}
+.dash-card-title{font-size:.9rem;font-weight:900;color:var(--text)}
+.dash-card-stats{display:flex;gap:16px;margin-bottom:10px}
+.dash-stat{text-align:center}
+.dash-stat-val{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--primary)}
+.dash-stat-label{font-size:.65rem;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.dash-bar{height:8px;background:var(--border);border-radius:10px;overflow:hidden}
+.dash-bar-fill{height:100%;border-radius:10px;transition:width .5s ease}
+.dash-mastery{font-size:.72rem;font-weight:800;color:var(--text-muted);margin-top:6px;text-align:right}
+.dash-summary{background:linear-gradient(135deg,var(--primary-light),var(--purple-light));border:2px solid rgba(59,91,219,.15);border-radius:var(--radius);padding:20px 22px;margin-bottom:22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.dash-summary-xp{font-family:'JetBrains Mono',monospace;font-size:2.5rem;font-weight:900;color:var(--primary)}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.ref-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:0 2px 8px var(--shadow)}
+.ref-card-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:14px}
+.ref-item{display:flex;gap:12px;margin-bottom:10px;align-items:flex-start}
+.ref-sym{font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);background:var(--primary-light);border:1.5px solid rgba(59,91,219,.2);border-radius:6px;padding:3px 8px;white-space:nowrap;flex-shrink:0;min-width:70px;text-align:center}
+.ref-desc{font-size:.82rem;font-weight:600;color:var(--text-mid);line-height:1.4}
+@keyframes bounceIn{0%{transform:scale(.9)}60%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes shakeX{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+/* ===== CONCEPTEN MODULE ===== */
+.attr-type-badge{display:inline-block;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:900;letter-spacing:.5px;text-transform:uppercase;margin-left:6px;vertical-align:middle}
+.atb-entity{background:var(--primary-light);color:var(--primary)}
+.atb-attr{background:var(--teal-light);color:var(--teal)}
+.atb-rel{background:var(--purple-light);color:var(--purple)}
+.atb-weak{background:var(--red-light);color:var(--red)}
+.atb-comp{background:var(--yellow-light);color:var(--yellow)}
+.atb-derived{background:#f0fff4;color:#276749;border:1.5px dashed #276749}
+.atb-multi{background:#fff0f6;color:#a61e4d;border:1.5px solid #a61e4d}
+.concept-item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:20px}
+.concept-item{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .18s;box-shadow:0 1px 4px var(--shadow);user-select:none}
+.concept-item:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:0 4px 14px var(--shadow)}
+.concept-item.ci-selected{border-color:var(--primary);background:var(--primary-light)}
+.concept-item.ci-correct{border-color:var(--green);background:var(--green-light);animation:bounceIn .3s}
+.concept-item.ci-wrong{border-color:var(--red);background:var(--red-light);animation:shakeX .4s}
+.concept-item.ci-reveal{border-color:var(--green);background:var(--green-light);opacity:.7}
+.ci-name{font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:4px}
+.ci-sub{font-size:.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-weight:600}
+.sort-zone{min-height:56px;border:2px dashed var(--border);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;transition:border-color .15s;background:var(--card)}
+.sort-zone.sz-active{border-color:var(--primary);background:var(--primary-light)}
+.sort-zone.sz-correct{border-color:var(--green);background:var(--green-light)}
+.sort-zone.sz-wrong{border-color:var(--red);background:var(--red-light)}
+.sort-zone-label{font-size:.7rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.sort-chip{background:var(--surface);border:2px solid var(--primary);border-radius:8px;padding:6px 12px;font-size:.82rem;font-weight:800;color:var(--primary);cursor:pointer;transition:all .15s;animation:fadeUp .2s}
+.sort-chip:hover{background:var(--primary);color:#fff}
+.sort-chip.sc-placed{background:var(--primary-light)}
+.concept-erd-svg{width:100%;max-width:520px;margin:0 auto 16px;display:block}
+.concept-modes{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.concept-mode-btn{background:var(--card);border:2px solid var(--border);border-radius:20px;padding:7px 16px;font-size:.82rem;font-weight:800;cursor:pointer;transition:all .15s;color:var(--text-muted);font-family:'Nunito',sans-serif}
+.concept-mode-btn.active{background:var(--primary);border-color:var(--primary);color:#fff}
+@media(max-width:600px){header{flex-wrap:wrap;padding:0 12px}.header-tabs{order:3;width:100%;border-top:1px solid var(--border)}.htab{padding:8px 10px;font-size:1.1rem;min-width:44px}.htab-label{font-size:.55rem}main{padding:20px 12px 80px}.diagram-area{flex-direction:column;gap:10px;min-height:auto}.rel-connector{transform:rotate(90deg);min-width:60px;flex:0 0 60px}.choices-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="xp-toast" id="xpToast">+10 XP ⚡</div>
+<header>
+<div class="header-logo"><div class="logo-icon">🗄️</div><span class="logo-text">DB<span>Trainer</span></span></div>
+<nav class="header-tabs">
+<button class="htab active" data-panel="drag" onclick="switchPanel('drag',this)">🔗<span class="htab-label">Verbind</span></button>
+<button class="htab" data-panel="kard" onclick="switchPanel('kard',this)">🎯<span class="htab-label">Kard.</span></button>
+<button class="htab" data-panel="opt" onclick="switchPanel('opt',this)">⚡<span class="htab-label">Opt.</span></button>
+<button class="htab" data-panel="quiz" onclick="switchPanel('quiz',this)">📝<span class="htab-label">Quiz</span></button>
+<button class="htab" data-panel="fk" onclick="switchPanel('fk',this)">🔑<span class="htab-label">FK</span></button>
+<button class="htab" data-panel="fout" onclick="switchPanel('fout',this)">🐛<span class="htab-label">Fouten</span></button>
+<button class="htab" data-panel="norm" onclick="switchPanel('norm',this)">🔢<span class="htab-label">Norm.</span></button>
+<button class="htab" data-panel="dataread" onclick="switchPanel('dataread',this)">🔍<span class="htab-label">Data→ERD</span></button>
+<button class="htab" data-panel="crows" onclick="switchPanel('crows',this)">🐦<span class="htab-label">Crow's</span></button>
+<button class="htab" data-panel="concepten" onclick="switchPanel('concepten',this)">🧩<span class="htab-label">Concept.</span></button>
+<button class="htab" data-panel="mix" onclick="switchPanel('mix',this)">🎲<span class="htab-label">Mix</span></button>
+<button class="htab" data-panel="theorie" onclick="switchPanel('theorie',this)">📖<span class="htab-label">Theorie</span></button>
+<button class="htab" data-panel="dashboard" onclick="switchPanel('dashboard',this)">📊<span class="htab-label">Overzicht</span></button>
+<button class="htab" data-panel="ref" onclick="switchPanel('ref',this)">📚<span class="htab-label">Ref.</span></button>
+</nav>
+<div class="header-score">
+<div class="score-chip">⭐ <span class="val" id="xpVal">0</span> XP</div>
+<div class="score-chip">🔥 <span class="val" id="streakVal">0</span></div>
+<div class="level-chip" id="levelBadge">LVL 1</div>
+</div>
+</header>
+<main>
+<div class="panel active" id="panel-drag">
+<div class="section-header"><div class="section-title">🔗 Verbind de tabellen</div><div class="section-sub">Maak alle verbindingen tussen de tabellen, kies de juiste kardinaliteit.</div></div>
+<div class="progress-row"><div class="progress-track"><div class="progress-fill" id="drag-prog" style="width:0%"></div></div><div class="progress-label" id="drag-prog-label">0 / 0</div></div>
+<div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="drag-streak"></div></div>
+<div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:6px;background:var(--primary-light);border:1.5px solid rgba(59,91,219,.25);border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:800;color:var(--primary)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0">1</span>Klik tabel A</div>
+  <div style="display:flex;align-items:center;gap:6px;background:var(--primary-light);border:1.5px solid rgba(59,91,219,.25);border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:800;color:var(--primary)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0">2</span>Klik tabel B</div>
+  <div style="display:flex;align-items:center;gap:6px;background:var(--primary-light);border:1.5px solid rgba(59,91,219,.25);border-radius:8px;padding:6px 12px;font-size:.78rem;font-weight:800;color:var(--primary)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:.65rem;flex-shrink:0">3</span>Kies kardinaliteit</div>
+</div>
+<div class="scenario-card"><div class="sc-label">📋 Opdracht</div><div class="sc-text" id="drag-scenario"></div></div>
+<div id="drag-step-hint" style="display:none;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.84rem;font-weight:700;color:var(--yellow)">👆 <span id="drag-step-msg"></span></div>
+<div class="conn-table-grid" id="conn-table-grid"></div>
+<div id="drag-picker-area"></div>
+<div class="conn-links-area" id="conn-links-area"></div>
+<div class="feedback-box" id="drag-feedback"></div>
+<div class="hint-box" id="drag-hint"></div>
+<div class="btn-row"><button class="btn" onclick="checkDragAnswer()" id="drag-check-btn">Controleer ✓</button><button class="btn ghost" onclick="resetDrag()">↺ Reset</button><button class="btn ghost" onclick="toggleDragHint()">💡 Hint</button><button class="btn ghost" onclick="nextDrag()" id="drag-next-btn" style="display:none">Volgende →</button></div>
+</div>
+<div class="panel" id="panel-kard"><div class="section-header"><div class="section-title">🎯 Kardinaliteit</div><div class="section-sub">Kies de juiste verhouding.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="kard-prog" style="width:0%"></div></div><div class="progress-label" id="kard-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="kard-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Scenario</div><div class="sc-text" id="kard-scenario"></div></div><div class="diagram-area" id="kard-diagram"></div><div class="choices-grid" id="kard-choices"></div><div class="feedback-box" id="kard-feedback"></div><div class="hint-box" id="kard-hint"></div><div class="btn-row"><button class="btn" id="kard-next-btn" onclick="nextKard()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('kard')">💡 Hint</button></div></div>
+<div class="panel" id="panel-opt"><div class="section-header"><div class="section-title">⚡ Optionaliteit</div><div class="section-sub">Verplicht of optioneel?</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="opt-prog" style="width:0%"></div></div><div class="progress-label" id="opt-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="opt-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Scenario</div><div class="sc-text" id="opt-scenario"></div></div><div class="diagram-area" id="opt-diagram"></div><div class="twopart" id="opt-choices"></div><div class="feedback-box" id="opt-feedback"></div><div class="hint-box" id="opt-hint"></div><div class="btn-row"><button class="btn" onclick="checkOpt()">Controleer ✓</button><button class="btn" id="opt-next-btn" onclick="nextOpt()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('opt')">💡 Hint</button></div></div>
+<div class="panel" id="panel-quiz"><div class="section-header"><div class="section-title">📖 Scenario Quiz</div><div class="section-sub">Kies het juiste relatiediagram.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="quiz-prog" style="width:0%"></div></div><div class="progress-label" id="quiz-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="quiz-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Scenario</div><div class="sc-text" id="quiz-scenario"></div></div><div class="quiz-options" id="quiz-options"></div><div class="feedback-box" id="quiz-feedback"></div><div class="hint-box" id="quiz-hint"></div><div class="btn-row"><button class="btn" id="quiz-next-btn" onclick="nextQuiz()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('quiz')">💡 Hint</button></div></div>
+<div class="panel" id="panel-fk"><div class="section-header"><div class="section-title">🔑 FK plaatsen</div><div class="section-sub">Waar staat de FK?</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="fk-prog" style="width:0%"></div></div><div class="progress-label" id="fk-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="fk-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Vraag</div><div class="sc-text" id="fk-scenario"></div></div><div class="diagram-area" id="fk-diagram"></div><div class="quiz-options" id="fk-options"></div><div class="feedback-box" id="fk-feedback"></div><div class="hint-box" id="fk-hint"></div><div class="btn-row"><button class="btn" id="fk-next-btn" onclick="nextFK()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('fk')">💡 Hint</button></div></div>
+<div class="panel" id="panel-fout"><div class="section-header"><div class="section-title">🐛 Fout zoeken</div><div class="section-sub">Vind de fout in het diagram.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="fout-prog" style="width:0%"></div></div><div class="progress-label" id="fout-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="fout-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Scenario</div><div class="sc-text" id="fout-scenario"></div></div><div class="diagram-area" id="fout-diagram" style="flex-direction:column;gap:12px;padding:20px"></div><div style="background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.88rem;font-weight:700;color:var(--yellow)">⚠️ <span id="fout-question">Wat is er fout?</span></div><div class="quiz-options" id="fout-options"></div><div class="feedback-box" id="fout-feedback"></div><div class="hint-box" id="fout-hint"></div><div class="btn-row"><button class="btn" id="fout-next-btn" onclick="nextFout()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('fout')">💡 Hint</button></div></div>
+<div class="panel" id="panel-norm"><div class="section-header"><div class="section-title">🔢 Normalisatie</div><div class="section-sub">Herken normalisatieproblemen.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="norm-prog" style="width:0%"></div></div><div class="progress-label" id="norm-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="norm-streak"></div></div><div class="scenario-card"><div class="sc-label">📋 Vraag</div><div class="sc-text" id="norm-scenario"></div></div><div id="norm-table-area" style="margin-bottom:16px"></div><div class="quiz-options" id="norm-options"></div><div class="feedback-box" id="norm-feedback"></div><div class="hint-box" id="norm-hint"></div><div class="btn-row"><button class="btn" id="norm-next-btn" onclick="nextNorm()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('norm')">💡 Hint</button></div></div>
+<div class="panel" id="panel-dataread"><div class="section-header"><div class="section-title">🔍 Van Data naar ERD</div><div class="section-sub">Analyseer tabeldata.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="dr-prog" style="width:0%"></div></div><div class="progress-label" id="dr-prog-lbl">0 / 0</div></div><div class="dr-mode-tabs"><button class="dr-mode-tab active" onclick="drSwitchMode('data2erd',this)">🔍 Data → ERD</button><button class="dr-mode-tab" onclick="drSwitchMode('erd2data',this)">📐 ERD → Data</button></div><div class="scenario-card"><div class="sc-label">📋 Scenario</div><div class="sc-text" id="dr-scenario"></div></div><div class="dr-legend"><span><i style="background:var(--primary)"></i>🔑 PK</span><span><i style="background:var(--red)"></i>🔗 FK</span></div><div class="dr-tables-wrap" id="dr-tables"></div><div class="dr-obs" id="dr-obs"></div><div id="dr-subqs"></div><div class="feedback-box" id="dr-feedback"></div><div class="hint-box" id="dr-hint"></div><div class="btn-row" style="margin-top:14px"><button class="btn" onclick="drCheck()">Controleer ✓</button><button class="btn ghost" id="dr-next-btn" style="display:none" onclick="drNext()">Volgende →</button><button class="btn ghost" onclick="drHint()">💡 Hint</button></div></div>
+<div class="panel" id="panel-crows"><div class="section-header"><div class="section-title">🐦 Crow's Foot lezen</div><div class="section-sub">Lees het diagram.</div></div><div class="progress-row"><div class="progress-track"><div class="progress-fill" id="crows-prog" style="width:0%"></div></div><div class="progress-label" id="crows-prog-label">0 / 0</div></div><div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="crows-streak"></div></div><div class="diagram-area" id="crows-diagram" style="min-height:100px"></div><div class="scenario-card"><div class="sc-label">❓ Vraag</div><div class="sc-text" id="crows-question"></div></div><div class="quiz-options" id="crows-options"></div><div class="feedback-box" id="crows-feedback"></div><div class="hint-box" id="crows-hint"></div><div class="btn-row"><button class="btn" id="crows-next-btn" onclick="nextCrows()" disabled>Volgende →</button><button class="btn ghost" onclick="toggleHint('crows')">💡 Hint</button></div></div>
+
+<!-- CONCEPTEN PANEL -->
+<div class="panel" id="panel-concepten">
+  <div class="section-header">
+    <div class="section-title">🧩 Concepten</div>
+    <div class="section-sub">Entiteiten, attributen, relaties — leer het verschil kennen.</div>
+  </div>
+  <div class="concept-modes">
+    <button class="concept-mode-btn active" onclick="conceptSwitchMode('classificeer',this)">🏷️ Classificeer</button>
+    <button class="concept-mode-btn" onclick="conceptSwitchMode('sorteer',this)">📦 Sorteer</button>
+    <button class="concept-mode-btn" onclick="conceptSwitchMode('herken',this)">🔍 Herken in ERD</button>
+  </div>
+  <div class="progress-row"><div class="progress-track"><div class="progress-fill" id="concept-prog" style="width:0%"></div></div><div class="progress-label" id="concept-prog-label">0 / 0</div></div>
+  <div class="streak-row"><span class="streak-label">Reeks</span><div class="streak-dots" id="concept-streak"></div></div>
+  <div id="concept-qbody"></div>
+  <div class="feedback-box" id="concept-feedback"></div>
+  <div class="hint-box" id="concept-hint"></div>
+  <div class="btn-row">
+    <button class="btn" id="concept-check-btn" onclick="conceptCheck()">Controleer ✓</button>
+    <button class="btn ghost" id="concept-next-btn" style="display:none" onclick="conceptNext()">Volgende →</button>
+    <button class="btn ghost" onclick="conceptToggleHint()">💡 Hint</button>
+  </div>
+</div>
+
+<!-- MIX PANEL -->
+<div class="panel" id="panel-mix">
+<div id="mix-start"><div class="exam-start-wrap">
+<div class="exam-start-icon">🎲</div>
+<div class="exam-start-title">Oefenmix</div>
+<div class="exam-start-sub">Alle modules door elkaar — oefen tot je alles beheerst. Geen tijdslimiet, hints beschikbaar.</div>
+<div id="ex-name-box" style="max-width:420px;margin:0 auto 24px;background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:20px 22px;text-align:left">
+<div style="font-size:.78rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Aantal vragen</div>
+<div class="exam-cfg-grid" id="mix-cfg-grid" style="max-width:100%;margin:0 0 0 0">
+<div class="exam-cfg-card sel" data-count="10" onclick="mixPickCount(this)"><div class="exam-cfg-icon">🔟</div><div class="exam-cfg-title">10 vragen</div><div class="exam-cfg-desc">Korte sessie</div></div>
+<div class="exam-cfg-card" data-count="20" onclick="mixPickCount(this)"><div class="exam-cfg-icon">2️⃣0️⃣</div><div class="exam-cfg-title">20 vragen</div><div class="exam-cfg-desc">Standaard</div></div>
+<div class="exam-cfg-card" data-count="0" onclick="mixPickCount(this)"><div class="exam-cfg-icon">♾️</div><div class="exam-cfg-title">Alle vragen</div><div class="exam-cfg-desc">Volledig overzicht</div></div>
+</div>
+</div>
+<button class="btn" id="mix-start-btn" style="font-size:1rem;padding:12px 30px;margin-top:12px" onclick="mixStart()">▶ Start Mix</button>
+</div></div>
+
+<div id="mix-qscreen" style="display:none">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;flex-wrap:wrap">
+<div class="exam-q-meta"><span class="exam-q-num" id="mix-qnum">Vraag 1/10</span><span class="exam-type-badge" id="mix-qtype">Kard</span></div>
+</div>
+<div class="progress-row"><div class="progress-track"><div class="progress-fill" id="mix-prog" style="width:0%"></div></div><div class="progress-label" id="mix-prog-lbl">0/10</div></div>
+<div id="mix-qbody"></div>
+<div class="feedback-box" id="mix-feedback"></div>
+<div class="hint-box" id="mix-hint"></div>
+<div class="btn-row" style="margin-top:12px">
+<button class="btn" id="mix-check-btn" onclick="mixCheck()">Controleer ✓</button>
+<button class="btn ghost" id="mix-next-btn" style="display:none" onclick="mixNext()">Volgende →</button>
+<button class="btn ghost" id="mix-hint-btn" onclick="mixHint()">💡 Hint</button>
+</div>
+</div>
+
+<div id="mix-results" style="display:none">
+<div class="exam-results-wrap">
+<div class="exam-ring" id="mix-ring"><div class="exam-ring-pct" id="mix-ring-pct">0%</div><div class="exam-ring-lbl">Score</div></div>
+<div class="results-title" id="mix-res-title"></div>
+<div class="results-sub" id="mix-res-sub"></div>
+<div class="exam-breakdown" id="mix-breakdown"></div>
+<div class="btn-row" style="justify-content:center;margin-bottom:20px"><button class="btn" onclick="mixRestart()">↺ Nieuwe mix</button></div>
+<div class="exam-review" id="mix-review"></div>
+</div>
+</div>
+</div>
+
+<!-- THEORIE -->
+<div class="panel" id="panel-theorie">
+<div class="section-header"><div class="section-title">📖 Theorie</div><div class="section-sub">Begrijp de concepten voor je begint met oefenen.</div></div>
+
+<div style="display:flex;flex-direction:column;gap:14px" id="theorie-accordion">
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--primary);font-size:1rem;margin-bottom:0">🎯 Kardinaliteit</div><span class="th-arrow" style="font-size:1.1rem;color:var(--primary)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Kardinaliteit beschrijft <strong>hoeveel</strong> records aan elkaar gekoppeld kunnen zijn.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:var(--primary-light);border-left:4px solid var(--primary);border-radius:6px;padding:12px 14px"><div style="font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--primary);font-size:1rem;margin-bottom:4px">1 : 1</div><div style="font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">Één record in tabel A is gekoppeld aan <strong>precies één</strong> record in tabel B.<br><span style="color:var(--text-muted)">Voorbeeld: elke gebruiker heeft exact één profiel.</span></div></div>
+<div style="background:var(--purple-light);border-left:4px solid var(--purple);border-radius:6px;padding:12px 14px"><div style="font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--purple);font-size:1rem;margin-bottom:4px">1 : N</div><div style="font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">Één record in tabel A is gekoppeld aan <strong>meerdere</strong> records in tabel B.<br><span style="color:var(--text-muted)">Voorbeeld: één klant heeft meerdere bestellingen. FK staat aan N-kant.</span></div></div>
+<div style="background:var(--teal-light);border-left:4px solid var(--teal);border-radius:6px;padding:12px 14px"><div style="font-weight:900;font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:1rem;margin-bottom:4px">N : M</div><div style="font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">Meerdere records in A kunnen gekoppeld zijn aan meerdere records in B. Vereist <strong>altijd een koppeltabel</strong>.<br><span style="color:var(--text-muted)">Voorbeeld: student volgt meerdere vakken.</span></div></div>
+</div>
+<div style="margin-top:14px;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:12px 14px;font-size:.85rem;font-weight:700;color:var(--text)">💡 <strong>Vuistregel:</strong> Kan A meerdere B's hebben? Kan B meerdere A's hebben? Beide ja = N:M. Eén ja = 1:N. Geen = 1:1.</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--primary);font-size:.82rem;padding:7px 14px" onclick="switchPanel('kard',document.querySelector('[data-panel=kard]'))">🎯 Oefen Kardinaliteit →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--primary);font-size:1rem;margin-bottom:0">🔑 Vreemde sleutels (FK)</div><span class="th-arrow" style="font-size:1.1rem;color:var(--primary)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Een <strong>Primary Key (PK)</strong> is een unieke identifier per rij. Een <strong>Foreign Key (FK)</strong> verwijst naar de PK van een andere tabel.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:var(--green-light);border-left:4px solid var(--green);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>Regel 1:</strong> Bij 1:N staat de FK altijd aan de <strong>N-kant</strong>.</div>
+<div style="background:var(--green-light);border-left:4px solid var(--green);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>Regel 2:</strong> Bij N:M gebruik je een <strong>koppeltabel</strong> met twee FK's.</div>
+<div style="background:var(--green-light);border-left:4px solid var(--green);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>Regel 3:</strong> Bij 1:1 kies je de logischste kant — vaak de afhankelijke entiteit.</div>
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--green);font-size:.82rem;padding:7px 14px" onclick="switchPanel('fk',document.querySelector('[data-panel=fk]'))">🔑 Oefen FK plaatsen →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--purple);font-size:1rem;margin-bottom:0">⚡ Optionaliteit</div><span class="th-arrow" style="font-size:1.1rem;color:var(--purple)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Optionaliteit geeft aan of een relatie <strong>verplicht (||)</strong> of <strong>optioneel (O|)</strong> is.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+<div style="background:var(--green-light);border:2px solid var(--green);border-radius:8px;padding:12px;text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--green)">||</div><div style="font-size:.82rem;font-weight:800;color:var(--green);margin:4px 0">Verplicht</div><div style="font-size:.78rem;color:var(--text-muted);font-weight:600">NOT NULL</div></div>
+<div style="background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:12px;text-align:center"><div style="font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--yellow)">O|</div><div style="font-size:.82rem;font-weight:800;color:var(--yellow);margin:4px 0">Optioneel</div><div style="font-size:.78rem;color:var(--text-muted);font-weight:600">NULL toegestaan</div></div>
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--purple);font-size:.82rem;padding:7px 14px" onclick="switchPanel('opt',document.querySelector('[data-panel=opt]'))">⚡ Oefen Optionaliteit →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--teal);font-size:1rem;margin-bottom:0">🐦 Crow's Foot notatie</div><span class="th-arrow" style="font-size:1.1rem;color:var(--teal)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Crow's Foot toont kardinaliteit én optionaliteit tegelijk aan het einde van elke lijn.</p>
+<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+<div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--primary);min-width:40px">||</span><div style="font-size:.85rem;font-weight:700;color:var(--text)">Verplicht, precies één</div></div>
+<div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--primary);min-width:40px">O|</span><div style="font-size:.85rem;font-weight:700;color:var(--text)">Optioneel, nul of één</div></div>
+<div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--primary);min-width:40px">|&lt;</span><div style="font-size:.85rem;font-weight:700;color:var(--text)">Verplicht, één of meer</div></div>
+<div style="display:flex;align-items:center;gap:14px;background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px"><span style="font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:900;color:var(--primary);min-width:40px">O&lt;</span><div style="font-size:.85rem;font-weight:700;color:var(--text)">Optioneel, nul of meer</div></div>
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--teal);font-size:.82rem;padding:7px 14px" onclick="switchPanel('crows',document.querySelector('[data-panel=crows]'))">🐦 Oefen Crow's Foot →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--green);font-size:1rem;margin-bottom:0">🔢 Normalisatie</div><span class="th-arrow" style="font-size:1.1rem;color:var(--green)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Normalisatie structureert een database om <strong>redundantie</strong> en <strong>anomalieën</strong> te vermijden.</p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="background:var(--primary-light);border-left:4px solid var(--primary);border-radius:6px;padding:12px 14px"><div style="font-weight:900;color:var(--primary);margin-bottom:6px;font-size:.9rem">1NF</div><div style="font-size:.85rem;font-weight:600;color:var(--text);line-height:1.6">Elke cel bevat precies <strong>één waarde</strong> (atomair). Er is een primaire sleutel.</div></div>
+<div style="background:var(--purple-light);border-left:4px solid var(--purple);border-radius:6px;padding:12px 14px"><div style="font-weight:900;color:var(--purple);margin-bottom:6px;font-size:.9rem">2NF</div><div style="font-size:.85rem;font-weight:600;color:var(--text);line-height:1.6">Vereist 1NF. Geen <strong>partiële afhankelijkheid</strong> van de PK.</div></div>
+<div style="background:var(--teal-light);border-left:4px solid var(--teal);border-radius:6px;padding:12px 14px"><div style="font-weight:900;color:var(--teal);margin-bottom:6px;font-size:.9rem">3NF</div><div style="font-size:.85rem;font-weight:600;color:var(--text);line-height:1.6">Vereist 2NF. Geen <strong>transitieve afhankelijkheid</strong>.</div></div>
+<div style="background:var(--yellow-light);border-left:4px solid var(--yellow);border-radius:6px;padding:12px 14px"><div style="font-weight:900;color:var(--yellow);margin-bottom:6px;font-size:.9rem">BCNF</div><div style="font-size:.85rem;font-weight:600;color:var(--text);line-height:1.6">Elke <strong>determinant</strong> moet een <strong>supersleutel</strong> zijn.</div></div>
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--green);font-size:.82rem;padding:7px 14px" onclick="switchPanel('norm',document.querySelector('[data-panel=norm]'))">🔢 Oefen Normalisatie →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--teal);font-size:1rem;margin-bottom:0">🔍 Data → ERD lezen</div><span class="th-arrow" style="font-size:1.1rem;color:var(--teal)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">Uit echte tabeldata kun je <strong>afleiden</strong> welke relaties er bestaan.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:var(--primary-light);border-left:4px solid var(--primary);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>Herhaalde FK-waarde</strong> → één entiteit heeft meerdere records → 1:N</div>
+<div style="background:var(--purple-light);border-left:4px solid var(--purple);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>Tabel met alleen FK-kolommen</strong> → koppeltabel → N:M</div>
+<div style="background:var(--teal-light);border-left:4px solid var(--teal);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6"><strong>FK-locatie bepaalt richting:</strong> de tabel mét FK is altijd de N-kant.</div>
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--teal);font-size:.82rem;padding:7px 14px" onclick="switchPanel('dataread',document.querySelector('[data-panel=dataread]'))">🔍 Oefen Data→ERD →</button></div></div>
+</div>
+
+<div class="ref-card" style="cursor:pointer" onclick="thToggle(this)">
+<div style="display:flex;align-items:center;justify-content:space-between"><div class="ref-card-title" style="color:var(--purple);font-size:1rem;margin-bottom:0">🧩 Entiteiten, attributen &amp; relaties</div><span class="th-arrow" style="font-size:1.1rem;color:var(--purple)">▼</span></div>
+<div class="th-body" style="display:none;margin-top:14px">
+<p style="font-size:.9rem;font-weight:600;color:var(--text-mid);line-height:1.7;margin-bottom:12px">De bouwstenen van een ERD: weet wanneer iets een entiteit, attribuut of relatie is.</p>
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="background:var(--primary-light);border-left:4px solid var(--primary);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">
+<strong>Entiteit vs Attribuut:</strong><br>
+Een <strong>entiteit</strong> is een zelfstandig object met eigen eigenschappen en een PK.<br>
+Een <strong>attribuut</strong> beschrijft een entiteit, heeft zelf geen verdere sub-eigenschappen en geen eigen PK.<br>
+<span style="color:var(--text-muted)">Vuistregel: heeft het eigen sub-data of FK's? → entiteit. Één waarde? → attribuut.</span>
+</div>
+<div style="background:var(--yellow-light);border-left:4px solid var(--yellow);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">
+<strong>Attribuuttypes:</strong><br>
+• <strong>Enkelvoudig</strong> — één atomaire waarde (Geboortedatum, PostCode)<br>
+• <strong>Samengesteld</strong> — splitst op in deelattributen (Naam → Voornaam + Achternaam; Adres → Straat + Nr + Stad)<br>
+• <strong>Meerwaardig</strong> — meerdere waarden per instantie (Telefoonnummer, Diploma's) → <em>aparte tabel in de DB</em><br>
+• <strong>Afgeleid</strong> — berekend uit ander attribuut, niet opgeslagen (Leeftijd ← Geboortedatum) → stippelellips in ERD
+</div>
+<div style="background:var(--red-light);border-left:4px solid var(--red);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">
+<strong>Zwakke entiteit:</strong><br>
+Kan niet bestaan zonder een <strong>ouderentiteit</strong>. Heeft een <strong>partiële sleutel</strong> die pas uniek is in combinatie met de PK van de ouder.<br>
+<span style="color:var(--text-muted)">Voorbeeld: LeverLijn(LeveringID FK + LijnNr) — LijnNr alleen zegt niets zonder LeveringID.</span><br>
+In ERD: dubbele rechthoek.
+</div>
+<div style="background:var(--purple-light);border-left:4px solid var(--purple);border-radius:6px;padding:12px 14px;font-size:.88rem;font-weight:600;color:var(--text);line-height:1.6">
+<strong>Koppelentiteit (associatieve entiteit):</strong><br>
+Een relatie die <strong>zelf attributen</strong> heeft wordt gemodelleerd als entiteit.<br>
+<span style="color:var(--text-muted)">Voorbeeld: Inschrijving(StudentID FK, CursusID FK, Datum, Cijfer) — Datum en Cijfer horen bij de relatie, niet bij Student of Cursus.</span>
+</div>
+</div>
+<div style="margin-top:12px;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:12px 14px;font-size:.85rem;font-weight:700;color:var(--text)">
+💡 <strong>Testje:</strong> Kan dit object zinvol bestaan zonder een ander object? Heeft het meer dan één eigenschap? Is er een identificerende sleutel? Ja op alle drie → entiteit.
+</div>
+<div style="margin-top:10px"><button class="btn" style="background:var(--purple);font-size:.82rem;padding:7px 14px" onclick="switchPanel('concepten',document.querySelector('[data-panel=concepten]'))">🧩 Oefen Concepten →</button></div></div>
+</div>
+
+<div style="background:linear-gradient(135deg,var(--primary-light),var(--purple-light));border:2px solid rgba(59,91,219,.2);border-radius:var(--radius);padding:20px 22px;margin-top:4px">
+<div style="font-size:1rem;font-weight:900;color:var(--primary);margin-bottom:10px">🗺️ Aanbevolen leerpad</div>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:var(--text)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0">1</span>Begin hier: lees de theorie per concept</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:var(--text)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0">2</span>Oefen per module: Kard → Opt → FK → Quiz → ...</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:var(--text)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0">3</span>Mix alle modules door elkaar via de 🎲 Oefenmix</div>
+<div style="display:flex;align-items:center;gap:10px;font-size:.88rem;font-weight:700;color:var(--text)"><span style="background:var(--primary);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0">4</span>Check je voortgang in het 📊 Overzicht</div>
+</div>
+<div style="margin-top:14px"><button class="btn" onclick="switchPanel('mix',document.querySelector('[data-panel=mix]'))">🎲 Ga naar Oefenmix →</button></div>
+</div>
+
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="panel" id="panel-dashboard"><div class="section-header"><div class="section-title">📊 Overzicht</div><div class="section-sub">Bekijk je voortgang.</div></div><div class="dash-summary"><div class="dash-summary-xp" id="dash-xp-total">0 XP</div><div style="flex:1"><div style="font-weight:900;font-size:1rem;color:var(--text);margin-bottom:4px">Totale voortgang</div><div style="font-size:.85rem;color:var(--text-mid);font-weight:600" id="dash-summary-text">Begin met oefenen!</div></div></div><div class="dash-grid" id="dash-grid"></div><div style="margin-top:24px;padding-top:20px;border-top:2px solid var(--border)"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px"><div><div style="font-size:.82rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">🗑️ Reset</div></div><button class="btn ghost" style="border-color:var(--red);color:var(--red)" onclick="showResetDialog()">↺ Reset alles</button></div><div id="reset-dialog" style="display:none;margin-top:14px;background:var(--red-light);border:2px solid var(--red);border-radius:var(--radius-sm);padding:16px 18px"><div style="font-size:.88rem;font-weight:800;color:var(--red);margin-bottom:10px">⚠️ Dit wist AL je voortgang!</div><div style="display:flex;gap:8px"><input id="reset-code-input" type="password" placeholder="Resetcode…" maxlength="30" style="flex:1;padding:9px 13px;border:2px solid var(--red);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);background:var(--surface);outline:none" onkeydown="if(event.key==='Enter')confirmReset()"><button class="btn" style="background:var(--red);box-shadow:none" onclick="confirmReset()">Bevestig</button><button class="btn ghost" onclick="hideResetDialog()">Annuleer</button></div><div id="reset-error" style="display:none;margin-top:8px;font-size:.78rem;font-weight:800;color:var(--red)">❌ Verkeerde code.</div></div></div></div>
+
+<!-- REFERENCE -->
+<div class="panel" id="panel-ref"><div class="section-header"><div class="section-title">📚 Referentie</div><div class="section-sub">Alle notaties op een rij.</div></div><div class="ref-grid"><div class="ref-card"><div class="ref-card-title" style="color:var(--primary)">Kardinaliteit</div><div class="ref-item"><div class="ref-sym">1:1</div><div class="ref-desc">Één-op-één</div></div><div class="ref-item"><div class="ref-sym">1:N</div><div class="ref-desc">Één-op-veel — FK aan N-kant</div></div><div class="ref-item"><div class="ref-sym">N:M</div><div class="ref-desc">Veel-op-veel — koppeltabel</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--purple)">Optionaliteit</div><div class="ref-item"><div class="ref-sym" style="background:var(--green-light);color:var(--green)">||</div><div class="ref-desc">Verplicht</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow)">O|</div><div class="ref-desc">Optioneel</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--green-light);color:var(--green)">|&lt;</div><div class="ref-desc">Verplicht-veel</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow)">O&lt;</div><div class="ref-desc">Optioneel-veel</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--green)">Normaalvormen</div><div class="ref-item"><div class="ref-sym" style="background:var(--primary-light)">1NF</div><div class="ref-desc">Atomaire waarden</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--purple-light);color:var(--purple)">2NF</div><div class="ref-desc">Geen partiële afhankelijkheden</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--teal-light);color:var(--teal)">3NF</div><div class="ref-desc">Geen transitieve afhankelijkheden</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow)">BCNF</div><div class="ref-desc">Elke determinant = supersleutel</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--teal)">Crow's Foot</div><div class="ref-item"><div class="ref-sym" style="background:var(--green-light);color:var(--green);font-family:'JetBrains Mono',monospace">||</div><div class="ref-desc">Verplicht — exact één</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow);font-family:'JetBrains Mono',monospace">O|</div><div class="ref-desc">Optioneel — nul of één</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--green-light);color:var(--green);font-family:'JetBrains Mono',monospace">|&lt;</div><div class="ref-desc">Verplicht — één of meer</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow);font-family:'JetBrains Mono',monospace">O&lt;</div><div class="ref-desc">Optioneel — nul of meer</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--purple)">Attribuuttypes</div><div class="ref-item"><div class="ref-sym" style="background:var(--teal-light);color:var(--teal)">Enkelvoudig</div><div class="ref-desc">Één atomaire waarde (Geboortedatum)</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--yellow-light);color:var(--yellow)">Samengesteld</div><div class="ref-desc">Deelattributen (Naam → Voor+Achter)</div></div><div class="ref-item"><div class="ref-sym" style="background:#fff0f6;color:#a61e4d;border:1.5px solid #a61e4d">Meerwaardig</div><div class="ref-desc">Meerdere waarden → aparte tabel</div></div><div class="ref-item"><div class="ref-sym" style="background:#f0fff4;color:#276749;border:1.5px dashed #276749">Afgeleid*</div><div class="ref-desc">Berekend, niet opgeslagen</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--red)">Entiteittypes</div><div class="ref-item"><div class="ref-sym" style="background:var(--primary-light);color:var(--primary)">Sterk</div><div class="ref-desc">Eigen onafhankelijke PK</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--red-light);color:var(--red)">Zwak</div><div class="ref-desc">Partiële sleutel + ouder-FK nodig; dubbele rechthoek</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--purple-light);color:var(--purple)">Koppel</div><div class="ref-desc">Relatie met eigen attributen; 2+ FK's</div></div></div><div class="ref-card"><div class="ref-card-title" style="color:var(--purple)">FK-regels</div><div class="ref-item"><div class="ref-sym" style="background:var(--purple-light);color:var(--purple)">1:N</div><div class="ref-desc">FK staat in de N-tabel</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--purple-light);color:var(--purple)">N:M</div><div class="ref-desc">Koppeltabel met 2 FK's</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--purple-light);color:var(--purple)">1:1</div><div class="ref-desc">FK in de afhankelijke tabel</div></div><div class="ref-item"><div class="ref-sym" style="background:var(--red-light);color:var(--red)">!</div><div class="ref-desc">Verplicht FK = nooit NULL</div></div></div></div></div>
+</main>
+<script>
+// ============ QUESTION DATA ============
+var kardQuestions=[{scenario:"Een klant kan meerdere bestellingen plaatsen. Elke bestelling hoort bij precies één klant.",entityA:"Klant",entityB:"Bestelling",relation:"plaatst",attrsA:["KlantID (PK)","Naam","Email"],attrsB:["BestNr (PK)","Datum","KlantID (FK)"],correct:"1:N",hint:"Klant kan MEERDERE bestellingen hebben.",explanation:"Klant (1) → Bestelling (N)."},{scenario:"Elke leerling zit in precies één klas. Een klas heeft meerdere leerlingen.",entityA:"Leerling",entityB:"Klas",relation:"zit in",attrsA:["LeerlingID (PK)","Naam","KlasID (FK)"],attrsB:["KlasID (PK)","Naam"],correct:"N:1",hint:"MEERDERE leerlingen in ÉÉN klas.",explanation:"Leerling (N) → Klas (1)."},{scenario:"Een persoon heeft precies één rijbewijs. Een rijbewijs behoort toe aan precies één persoon.",entityA:"Persoon",entityB:"Rijbewijs",relation:"heeft",attrsA:["PersonID (PK)","Naam"],attrsB:["RijbewijsNr (PK)","PersonID (FK)"],correct:"1:1",hint:"BEIDE kanten ÉÉN.",explanation:"1:1 relatie."},{scenario:"Een student kan meerdere cursussen volgen. Een cursus kan meerdere studenten hebben.",entityA:"Student",entityB:"Cursus",relation:"volgt",attrsA:["StudentID (PK)","Naam"],attrsB:["CursusID (PK)","Titel"],correct:"N:M",hint:"BEIDE kanten MEERDERE → koppeltabel!",explanation:"N:M. Koppeltabel nodig."},{scenario:"Een levering bevat meerdere leverlijnen. Elke leverlijn hoort bij één levering.",entityA:"Levering",entityB:"LeverLijn",relation:"bevat",attrsA:["LeveringID (PK)","Datum"],attrsB:["LijnNr (PK)","LeveringID (FK)"],correct:"1:N",hint:"Één levering, MEERDERE leverlijnen.",explanation:"Levering (1) → LeverLijn (N)."},{scenario:"Een leraar geeft les aan meerdere klassen. Een klas heeft meerdere leraren.",entityA:"Leraar",entityB:"Klas",relation:"geeft les",attrsA:["LeraarID (PK)","Naam"],attrsB:["KlasID (PK)","Naam"],correct:"N:M",hint:"Beide kanten meerdere.",explanation:"N:M."},{scenario:"Een land heeft precies één hoofdstad. Een hoofdstad hoort bij precies één land.",entityA:"Land",entityB:"Hoofdstad",relation:"heeft",attrsA:["LandID (PK)","Naam"],attrsB:["StadID (PK)","LandID (FK)"],correct:"1:1",hint:"ÉÉN aan beide kanten.",explanation:"1:1."},{scenario:"Een afdeling heeft meerdere werknemers. Elke werknemer werkt in precies één afdeling.",entityA:"Afdeling",entityB:"Werknemer",relation:"heeft",attrsA:["AfdelingID (PK)","Naam"],attrsB:["WerkNr (PK)","AfdelingID (FK)"],correct:"1:N",hint:"Één afdeling, meerdere werknemers.",explanation:"Afdeling (1) → Werknemer (N)."},{scenario:"Een recept heeft meerdere ingrediënten. Een ingrediënt kan in meerdere recepten.",entityA:"Recept",entityB:"Ingrediënt",relation:"gebruikt",attrsA:["ReceptID (PK)","Naam"],attrsB:["IngredID (PK)","Naam"],correct:"N:M",hint:"Beide kanten meerdere.",explanation:"N:M."},{scenario:"Een vlucht vertrekt van één luchthaven. Een luchthaven heeft meerdere vluchten.",entityA:"Vlucht",entityB:"Luchthaven",relation:"vertrekt van",attrsA:["VluchtNr (PK)","LuchthavenID (FK)"],attrsB:["LuchthavenID (PK)","Naam"],correct:"N:1",hint:"MEERDERE vluchten van ÉÉN luchthaven.",explanation:"Vlucht (N) → Luchthaven (1)."},{scenario:"Een museum bezit meerdere kunstwerken. Elk kunstwerk behoort aan één museum.",entityA:"Museum",entityB:"Kunstwerk",relation:"bezit",attrsA:["MuseumID (PK)","Naam"],attrsB:["KunstID (PK)","MuseumID (FK)"],correct:"1:N",hint:"Één museum, meerdere kunstwerken.",explanation:"Museum (1) → Kunstwerk (N)."},{scenario:"Een gebruiker heeft één profiel. Een profiel hoort bij één gebruiker.",entityA:"Gebruiker",entityB:"Profiel",relation:"heeft",attrsA:["GebrID (PK)","Email"],attrsB:["ProfielID (PK)","GebrID (FK)"],correct:"1:1",hint:"ÉÉN profiel per gebruiker.",explanation:"1:1."}];
+var optQuestions=[{scenario:"Een klant HOEFT geen bestelling te hebben. Een bestelling MOET bij een klant horen.",entityA:"Klant",entityB:"Bestelling",relation:"plaatst",cardLabel:"1:N",correctA:"optioneel",correctB:"verplicht",hint:"'HOEFT niet'=optioneel,'MOET'=verplicht.",explanation:"Klant: optioneel. Bestelling: verplicht."},{scenario:"Elke werknemer MOET in een afdeling. Een afdeling KAN leeg zijn.",entityA:"Werknemer",entityB:"Afdeling",relation:"werkt in",cardLabel:"N:1",correctA:"verplicht",correctB:"optioneel",hint:"MOET=verplicht. KAN=optioneel.",explanation:"Werknemer: verplicht. Afdeling: optioneel."},{scenario:"Leerling MOET minstens één vak. Vak MOET minstens één leerling.",entityA:"Leerling",entityB:"Vak",relation:"volgt",cardLabel:"N:M",correctA:"verplicht",correctB:"verplicht",hint:"Beide MOET.",explanation:"Beide verplicht."},{scenario:"Product KAN in categorie maar hoeft niet. Categorie KAN leeg zijn.",entityA:"Product",entityB:"Categorie",relation:"behoort tot",cardLabel:"N:1",correctA:"optioneel",correctB:"optioneel",hint:"Beide KAN.",explanation:"Beide optioneel."},{scenario:"Bestelling MOET leveradres hebben. Adres KAN zonder bestellingen bestaan.",entityA:"Bestelling",entityB:"Adres",relation:"heeft",cardLabel:"N:1",correctA:"verplicht",correctB:"optioneel",hint:"MOET vs KAN.",explanation:"Bestelling: verplicht. Adres: optioneel."},{scenario:"Auto MOET eigenaar. Persoon KAN auto hebben maar hoeft niet.",entityA:"Auto",entityB:"Persoon",relation:"eigendom van",cardLabel:"N:1",correctA:"verplicht",correctB:"optioneel",hint:"Auto MOET. Persoon hoeft niet.",explanation:"Auto: verplicht. Persoon: optioneel."},{scenario:"Boek MOET uitgever. Uitgever KAN zonder boeken bestaan.",entityA:"Boek",entityB:"Uitgever",relation:"uitgegeven door",cardLabel:"N:1",correctA:"verplicht",correctB:"optioneel",hint:"Boek MOET. Uitgever hoeft niet.",explanation:"Boek: verplicht. Uitgever: optioneel."},{scenario:"Project KAN werknemers hebben. Werknemer KAN aan projecten werken.",entityA:"Project",entityB:"Werknemer",relation:"heeft",cardLabel:"N:M",correctA:"optioneel",correctB:"optioneel",hint:"Beide KAN.",explanation:"Beide optioneel."}];
+var quizQuestions=[{scenario:"Bibliotheek: lid leest meerdere boeken, boek door meerdere leden. Beide verplicht.",hint:"Beide verplicht-veel → N:M verplicht.",correct:1,options:[{label:"Lid ||—O< Boek",desc:"Optioneel-veel"},{label:"Lid ||—|< Boek",desc:"N:M verplicht"},{label:"Lid O<—>O Boek",desc:"N:M optioneel"},{label:"Lid ||—|| Boek",desc:"1:1"}],explanation:"N:M verplicht."},{scenario:"HR: niet elke werknemer heeft wagen. Elke wagen bij één werknemer.",hint:"1:1 optioneel.",correct:2,options:[{label:"Werknemer ||—|| Wagen",desc:"Verplicht 1:1"},{label:"Werknemer ||—O< Wagen",desc:"Optioneel-veel"},{label:"Werknemer O|—|| Wagen",desc:"Optioneel-verplicht 1:1"},{label:"Werknemer O<—>O Wagen",desc:"N:M"}],explanation:"1:1 optioneel aan werknemer-kant."},{scenario:"School: leraar-vak-klas driehoeksrelatie.",hint:"Koppeltabel met 3 FK's.",correct:3,options:[{label:"Alles 1:1",desc:""},{label:"Twee 1:N",desc:""},{label:"N:M zonder vak",desc:""},{label:"Koppeltabel: 3 FK's",desc:"Ternair"}],explanation:"Ternaire koppeltabel."},{scenario:"Webshop: klant meerdere adressen, bestelling één adres.",hint:"Klant→Adres 1:N, Adres→Bestelling 1:N.",correct:0,options:[{label:"Klant 1—N Adres 1—N Bestelling",desc:"Ketenrelatie"},{label:"Klant N—M Adres",desc:"N:M"},{label:"Klant 1—N Best 1—1 Adres",desc:""},{label:"Klant 1—1 Adres",desc:""}],explanation:"Ketenrelatie: Klant(1)→Adres(N), Adres(1)→Bestelling(N)."},{scenario:"Muziek: nummer door meerdere artiesten. Nummer op minstens één album.",hint:"Twee N:M relaties.",correct:2,options:[{label:"Artiest 1—N Nummer 1—N Album",desc:""},{label:"Artiest N—M Album",desc:""},{label:"Artiest N—M Nummer N—M Album",desc:"Twee N:M"},{label:"Artiest 1—1 Nummer",desc:""}],explanation:"Twee N:M met koppeltabellen."},{scenario:"Hotel: kamer heeft meerdere reservaties maar elke reservatie is voor één kamer. Gast kan meerdere reservaties maken.",hint:"Kamer→Reservatie 1:N én Gast→Reservatie 1:N.",correct:1,options:[{label:"Kamer N—M Gast direct",desc:""},{label:"Kamer 1—N Reservatie N—1 Gast",desc:"Ketting via Reservatie"},{label:"Kamer 1—1 Reservatie",desc:""},{label:"Gast N—M Kamer",desc:""}],explanation:"Reservatie is de koppelentiteit tussen Kamer en Gast."},{scenario:"Vliegtuig: elke vlucht heeft één vliegtuig en één piloot. Piloot kan meerdere vluchten vliegen.",hint:"Twee 1:N relaties naar Vlucht.",correct:3,options:[{label:"Vlucht N—M Piloot",desc:""},{label:"Vliegtuig 1—1 Vlucht",desc:""},{label:"Piloot N—M Vliegtuig",desc:""},{label:"Vliegtuig 1—N Vlucht N—1 Piloot",desc:""}],explanation:"Vlucht heeft FK naar zowel Vliegtuig als Piloot."},{scenario:"Sociale media: gebruiker volgt andere gebruikers. Hoe modelleer je dit?",hint:"Zelfverwijzende N:M relatie.",correct:2,options:[{label:"Gebruiker 1—N Gebruiker",desc:""},{label:"Twee aparte tabellen",desc:""},{label:"Koppeltabel Volgt(VolgerID FK, GevolgdeID FK)",desc:"Zelfverwijzend"},{label:"Één FK in Gebruiker",desc:""}],explanation:"Zelfverwijzende N:M via koppeltabel."},{scenario:"E-commerce: product heeft varianten (kleur, maat). Elke variant is van één product.",hint:"Variant is afhankelijke entiteit.",correct:0,options:[{label:"Product 1—N Variant",desc:"Afhankelijk"},{label:"Product N—M Variant",desc:""},{label:"Variant 1—1 Product",desc:""},{label:"Geen relatie nodig",desc:""}],explanation:"Variant hangt af van Product: 1:N."}];
+var fkQuestions=[{scenario:"Klant (1) → Bestelling (N). Waar FK?",entityA:"Klant",entityB:"Bestelling",card:"1:N",options:["FK in Klant","FK in Bestelling","FK in beide","Koppeltabel"],correct:1,hint:"FK aan N-kant.",explanation:"FK in Bestelling."},{scenario:"Student (N) ↔ Cursus (M). Oplossing?",entityA:"Student",entityB:"Cursus",card:"N:M",options:["FK in Student","FK in Cursus","Koppeltabel","FK in beide"],correct:2,hint:"N:M = koppeltabel!",explanation:"Koppeltabel."},{scenario:"Persoon (1) ↔ Paspoort (1). FK?",entityA:"Persoon",entityB:"Paspoort",card:"1:1",options:["FK in Paspoort","FK in Persoon","Beide mogelijk","Koppeltabel"],correct:2,hint:"Bij 1:1 keuze vrij.",explanation:"Beide mogelijk."},{scenario:"Auteur (1) → Boek (N). In welke tabel staat de FK, en hoe heet de kolom?",entityA:"Auteur",entityB:"Boek",card:"1:N",options:["FK AuteurID staat in tabel Boek","FK BoekID staat in tabel Auteur","Koppeltabel met AuteurID + BoekID","FK staat in beide tabellen"],correct:0,hint:"FK aan N-kant = in tabel Boek.",explanation:"FK AuteurID staat in de N-tabel: Boek(ISBN, AuteurID FK, Titel)."},{scenario:"Leraar (N) ↔ Vak (M). Oplossing?",entityA:"Leraar",entityB:"Vak",card:"N:M",options:["Array FK in Leraar","FK in Vak","Koppeltabel GeeftLes","FK in beide"],correct:2,hint:"N:M = koppeltabel.",explanation:"Koppeltabel GeeftLes."},{scenario:"Land (1) ↔ Vlag (1). Meest logische FK?",entityA:"Land",entityB:"Vlag",card:"1:1",options:["FK LandID in Vlag","FK VlagID in Land","Beide even goed","Koppeltabel"],correct:0,hint:"Vlag is afhankelijk.",explanation:"FK in afhankelijke tabel."},{scenario:"Leverancier (1) → Levering (N). Welke kolom is de FK?",entityA:"Leverancier",entityB:"Levering",card:"1:N",options:["LeveringID in Leverancier","LeverancierID in Levering","Beide tabellen een FK","Koppeltabel nodig"],correct:1,hint:"FK staat in de N-kant: Levering.",explanation:"LeverancierID (FK) staat in Levering."},{scenario:"Project (N:M) ↔ Medewerker. Koppeltabel OpdrachtID, ProjectID, MedewerkerID. Waar staan de FK's?",entityA:"Project",entityB:"Medewerker",card:"N:M",options:["FK in Project","FK in Medewerker","Beide FK's in koppeltabel Opdracht","FK in beide hoofdtabellen"],correct:2,hint:"N:M = koppeltabel met twee FK's.",explanation:"Koppeltabel Opdracht bevat ProjectID (FK) én MedewerkerID (FK)."},{scenario:"Artiest (N) ↔ Concert (M). Hoe heet de koppeltabel?",entityA:"Artiest",entityB:"Concert",card:"N:M",options:["Artiest_Concert of Optreden","FK in Artiest","FK in Concert","Geen koppeltabel nodig"],correct:0,hint:"Koppeltabel krijgt vaak een eigen naam.",explanation:"Koppeltabel bijv. Optreden(ArtistID FK, ConcertID FK)."},{scenario:"Kamer (1) → Reservatie (N) — elk reservatienummer uniek. Welk schema?",entityA:"Kamer",entityB:"Reservatie",card:"1:N",options:["Reservatie(ResID PK, KamerID FK, Datum)","Kamer(KamerID PK, ResID FK)","Beide tabellen dezelfde PK","Koppeltabel"],correct:0,hint:"FK aan N-kant, Reservatie is de N-zijde.",explanation:"KamerID als FK in Reservatie."}];
+var foutQuestions=[{scenario:"Leerling-Klas als N:M",diagram:[{a:"Leerling",b:"Klas",card:"N:M",fkInfo:"FK KlasID in Leerling"}],question:"Fout?",options:["Geen fout","Moet N:1 zijn","PK ontbreekt","FK in Klas"],correct:1,hint:"Leerling zit in ÉÉN klas.",explanation:"Moet N:1."},{scenario:"Klant-Bestelling als 1:1",diagram:[{a:"Klant",b:"Bestelling",card:"1:1",fkInfo:"FK in Bestelling"}],question:"Fout?",options:["Correct","FK verkeerd","Moet 1:N zijn","Geen fout"],correct:2,hint:"Klant kan meerdere bestellingen.",explanation:"Moet 1:N."},{scenario:"Student-Cursus als 1:N",diagram:[{a:"Student",b:"Cursus",card:"1:N",fkInfo:"FK in Student"}],question:"Fout?",options:["Moet N:M zijn","FK in Cursus","Correct","PK nodig"],correct:0,hint:"Beide kanten meerdere.",explanation:"Moet N:M."},{scenario:"Werknemer-Project N:M met FK in Werknemer",diagram:[{a:"Werknemer",b:"Project",card:"N:M",fkInfo:"FK ProjectID in Werknemer"}],question:"Probleem?",options:["Kardinaliteit fout","N:M correct maar koppeltabel nodig!","FK in Project","Geen fout"],correct:1,hint:"N:M = koppeltabel.",explanation:"Koppeltabel nodig."},{scenario:"Auteur-Boek 1:N met FK in Auteur",diagram:[{a:"Auteur",b:"Boek",card:"1:N",fkInfo:"FK AuteurID in Auteur"}],question:"Fout?",options:["Kardinaliteit fout","FK VERKEERD — hoort in Boek!","Koppeltabel nodig","Geen fout"],correct:1,hint:"FK aan N-kant = Boek.",explanation:"FK hoort in Boek."},{scenario:"Arts-Patiënt als 1:N",diagram:[{a:"Arts",b:"Patiënt",card:"1:N",fkInfo:"FK ArtsID in Arts"}],question:"Fouten?",options:["Alleen kardinaliteit","Alleen FK","Kardinaliteit N:M ÉN FK fout","Geen fout"],correct:2,hint:"Arts↔Patiënt = N:M.",explanation:"Twee fouten."},{scenario:"Product-Categorie als N:M (product zit in 1 categorie)",diagram:[{a:"Product",b:"Categorie",card:"N:M",fkInfo:"Koppeltabel"}],question:"Fout?",options:["Geen fout","Moet N:1 zijn","Ontbrekende attr","FK fout"],correct:1,hint:"Product in ÉÉN categorie.",explanation:"N:1 volstaat."},{scenario:"Gebruiker-Profiel als 1:N",diagram:[{a:"Gebruiker",b:"Profiel",card:"1:N",fkInfo:"FK GebruikerID in Profiel"}],question:"Fout? (1 profiel per gebruiker)",options:["Moet 1:1 zijn","FK fout","Geen fout","Koppeltabel"],correct:0,hint:"PRECIES ÉÉN profiel.",explanation:"Moet 1:1."}];
+var normQuestions=[{scenario:"Welke normaalvorm?",table:'<table class="norm-table-example"><tr><th>StudentID</th><th>Naam</th><th>Vakken</th></tr><tr><td>1</td><td>Emma</td><td class="norm-bad-cell">Wiskunde, Fysica</td></tr></table>',options:["Niet in 1NF","1NF niet 2NF","2NF niet 3NF","3NF"],correct:0,hint:"Meerdere waarden per cel.",explanation:"Niet in 1NF.",difficulty:1},{scenario:"PK={StudentID,VakID}. VakNaam hangt alleen af van VakID.",table:'<table class="norm-table-example"><tr><th><u>StudentID</u></th><th><u>VakID</u></th><th>Cijfer</th><th class="norm-bad-cell">VakNaam</th></tr></table>',options:["Niet 1NF","1NF niet 2NF — partieel","2NF niet 3NF","3NF"],correct:1,hint:"Partiële afhankelijkheid.",explanation:"Schendt 2NF.",difficulty:2},{scenario:"Leveranciersgegevens herhaald per levering:",table:'<table class="norm-table-example"><tr><th>LeveringID</th><th class="norm-bad-cell">LeverancierNaam</th><th class="norm-bad-cell">LeverancierAdres</th><th>Product</th></tr><tr><td>L01</td><td class="norm-bad-cell">Acme NV</td><td class="norm-bad-cell">Gent</td><td>Schroeven</td></tr><tr><td>L02</td><td class="norm-bad-cell">Acme NV</td><td class="norm-bad-cell">Gent</td><td>Bouten</td></tr></table>',options:["Geen probleem","Denormalisatie: herhaling","PK ontbreekt","N:M nodig"],correct:1,hint:"Leveranciersgegevens herhaald.",explanation:"Denormalisatie!",difficulty:1},{scenario:"Is deze tabel in 3NF?",table:'<table class="norm-table-example"><tr><th><u>WerknemerID</u></th><th>Naam</th><th>AfdelingID</th><th class="norm-bad-cell">AfdelingNaam</th></tr></table>',options:["Ja 3NF","Nee — transitieve afhankelijkheid","Niet 1NF","Samengestelde PK nodig"],correct:1,hint:"AfdelingNaam hangt af van AfdelingID.",explanation:"Transitieve afhankelijkheid → schendt 3NF.",difficulty:2},{scenario:"Student-Vak relatie. Welke structuur is correct voor N:M?",table:'<table class="norm-table-example"><tr><th>StudentID</th><th>VakID</th><th>Cijfer</th></tr><tr><td>S1</td><td>V1</td><td>14</td></tr><tr><td>S1</td><td>V2</td><td>17</td></tr><tr><td>S2</td><td>V1</td><td>12</td></tr></table>',options:["FK VakID in Student","FK StudentID in Vak","Koppeltabel Inschrijving(StudentID FK, VakID FK, Cijfer)","Aparte kolom per vak in Student"],correct:2,hint:"Beide ID's herhalen → koppeltabel.",explanation:"Koppeltabel met twee FK's.",difficulty:1},{scenario:"Wat is het probleem met deze tabel?",table:'<table class="norm-table-example"><tr><th>LeraarID</th><th>Naam</th><th class="norm-bad-cell">Vakken</th></tr><tr><td>1</td><td>Mevr. Peeters</td><td class="norm-bad-cell">Wiskunde, Fysica</td></tr><tr><td>2</td><td>Dhr. Janssen</td><td class="norm-bad-cell">Informatica</td></tr></table>',options:["Geen PK aanwezig","Meerdere waarden in één cel — schendt 1NF","Transitieve afhankelijkheid — schendt 3NF","Geen FK aanwezig"],correct:1,hint:"Kijk naar de kolom Vakken: meerdere waarden per cel.",explanation:"Niet atomair → schendt 1NF.",difficulty:1},{scenario:"BCNF: Rooster(Student,Vak,Leraar). PK={Student,Vak}. Leraar→Vak.",table:null,options:["Ja BCNF","Nee — Leraar→Vak maar Leraar geen supersleutel","Niet 3NF","Niet 1NF"],correct:1,hint:"Is Leraar een supersleutel?",explanation:"Schendt BCNF.",difficulty:3},{scenario:"Tabel met enkelvoudige PK. Alle kolommen hangen volledig af van PK, geen transitieve afhankelijkheden. Welke normaalvorm?",table:null,options:["1NF","2NF","3NF","Geen normaalvorm"],correct:2,hint:"Volledig afh. van PK + geen transitief = ?",explanation:"3NF.",difficulty:2},{scenario:"Welk probleem ontstaat als je een rij verwijdert en daardoor ook andere nuttige info kwijtraakt?",table:null,options:["Invoeganomalìe","Wijzigingsanomalìe","Verwijderanomalie","Dat is normaal"],correct:2,hint:"Je verwijdert meer dan bedoeld.",explanation:"Verwijderanomalie.",difficulty:2},{scenario:"Tabel Bestelling(BestID, KlantID, KlantNaam, KlantAdres, Datum). KlantNaam hangt af van KlantID, niet van BestID.",table:null,options:["In 3NF","Schendt 2NF","Schendt 3NF — transitief","Schendt 1NF"],correct:2,hint:"KlantNaam→KlantID→BestID = transitief.",explanation:"Schendt 3NF: KlantNaam transitief afhankelijk via KlantID.",difficulty:2},{scenario:"Oplossing: hoe normaliseer je naar 3NF?",table:'<table class="norm-table-example"><tr><th><u>WerkID</u></th><th>Naam</th><th class="norm-bad-cell">AfdelingID</th><th class="norm-bad-cell">AfdelingNaam</th></tr><tr><td>1</td><td>Anna</td><td class="norm-bad-cell">A1</td><td class="norm-bad-cell">Sales</td></tr><tr><td>2</td><td>Bob</td><td class="norm-bad-cell">A1</td><td class="norm-bad-cell">Sales</td></tr></table>',options:["AfdelingNaam weggooien","Aparte tabel Afdeling(AfdelingID PK, AfdelingNaam) — FK AfdelingID blijft in Werknemer","Samengestelde PK (WerkID + AfdelingID) maken","Alles in één tabel laten"],correct:1,hint:"AfdelingNaam hangt af van AfdelingID → afsplitsen.",explanation:"Afdeling afsplitsen: Afdeling(AfdelingID PK, AfdelingNaam).",difficulty:2}];
+var crowsQuestions=[{diagram:{a:"Klant",symA:"||",symB:"O<",b:"Bestelling"},question:"Interpretatie?",options:["Klant moet bestelling","Klant bij één bestelling","Bestelling bij 1 klant; klant 0+ bestellingen","Bestelling bij meerdere klanten"],correct:2,hint:"||=verplicht-één. O<=optioneel-veel.",explanation:"Bestelling MOET bij 1 klant. Klant KAN 0+ bestellingen."},{diagram:{a:"Student",symA:"|<",symB:"|<",b:"Cursus"},question:"Betekenis?",options:["Student 1 cursus","1:1","N:M verplicht beide kanten","Niet verplicht"],correct:2,hint:"|<=verplicht-veel.",explanation:"N:M verplicht."},{diagram:{a:"Afdeling",symA:"||",symB:"O<",b:"Werknemer"},question:"Correct?",options:["Werknemer MOET in afdeling; afdeling KAN leeg","Afdeling MOET werknemers","Meerdere afdelingen","N:M"],correct:0,hint:"||=verplicht-één bij Afdeling.",explanation:"1:N verplicht aan werknemer-kant."},{diagram:{a:"Werknemer",symA:"O<",symB:"O<",b:"Project"},question:"Betekenis?",options:["1:N","N:M beide optioneel","Verplicht","1:1"],correct:1,hint:"O< beide kanten.",explanation:"N:M optioneel."},{diagram:{a:"Levering",symA:"||",symB:"|<",b:"LeverLijn"},question:"Interpretatie?",options:["Levering hoeft geen lijnen","Lijn bij 1 levering; levering minstens 1 lijn","Optioneel","N:M"],correct:1,hint:"||=verplicht-één. |<=verplicht-veel.",explanation:"Beide verplicht."},{diagram:{a:"Land",symA:"||",symB:"||",b:"Hoofdstad"},question:"Betekenis?",options:["Meerdere hoofdsteden","Beide optioneel","Verplicht 1:1","N:M"],correct:2,hint:"|| beide kanten.",explanation:"Verplicht 1:1."},{diagram:{a:"Boek",symA:"O|",symB:"O<",b:"Auteur"},question:"Wat betekent dit diagram?",options:["Boek moet auteur; auteur moet boek","Boek kan zonder auteur; auteur kan meerdere boeken — beide optioneel","Boek verplicht 1 auteur; auteur optioneel meerdere boeken","N:M verplicht"],correct:1,hint:"O|=optioneel-één. O<=optioneel-veel.",explanation:"Boek KAN zonder auteur. Auteur KAN meerdere boeken."},{diagram:{a:"Product",symA:"|<",symB:"O|",b:"Categorie"},question:"Interpretatie?",options:["Product in verplicht veel categorieën","Product verplicht meerdere categorieën; categorie optioneel één product","N:M","Product in geen categorie mogelijk"],correct:1,hint:"|<=verplicht-veel aan product-kant. O|=optioneel-één aan categorie-kant.",explanation:"Product MOET in meerdere categorieën. Categorie KAN bij één product horen."},{diagram:{a:"Arts",symA:"||",symB:"O<",b:"Patiënt"},question:"Welke zin klopt?",options:["Patiënt moet arts; arts kan meerdere patiënten","Arts moet patiënt; patiënt optioneel","N:M","1:1 verplicht"],correct:0,hint:"Lees van rechts (Patiënt) naar links: O< = optioneel-veel bij Arts.",explanation:"Arts KAN 0 of meer patiënten hebben. Patiënt MOET bij 1 arts."},{diagram:{a:"Leerling",symA:"O|",symB:"O|",b:"Klas"},question:"Wat beschrijft dit diagram?",options:["Leerling verplicht in klas","Leerling optioneel in klas; klas optioneel één leerling — 1:1 optioneel","N:M optioneel","Onmogelijke relatie"],correct:1,hint:"O| beide kanten = optioneel-één.",explanation:"1:1 volledig optioneel."}];
+var dragQuestions=[{scenario:"Leverancier levert producten via leveringen. Elke levering heeft meerdere leverlijnen. Een product kan in meerdere leverlijnen voorkomen.",hint:"Leverancier→Levering (1:N), Levering→LeverLijn (1:N), Product→LeverLijn (1:N).",tables:[{id:"leverancier",name:"Leverancier",sub:"LeverancierID"},{id:"levering",name:"Levering",sub:"LeveringID"},{id:"leverlijn",name:"LeverLijn",sub:"LijnNr"},{id:"product",name:"Product",sub:"ProductID"}],correctLinks:[{a:"leverancier",b:"levering",card:"1:N"},{a:"levering",b:"leverlijn",card:"1:N"},{a:"product",b:"leverlijn",card:"1:N"}]},{scenario:"School: leerling in één klas. Leraar-vak is N:M.",hint:"Leerling→Klas (N:1). Leraar↔Vak (N:M).",tables:[{id:"leerling",name:"Leerling",sub:"LeerlingID"},{id:"klas",name:"Klas",sub:"KlasID"},{id:"leraar",name:"Leraar",sub:"LeraarID"},{id:"vak",name:"Vak",sub:"VakID"}],correctLinks:[{a:"leerling",b:"klas",card:"N:1"},{a:"leraar",b:"vak",card:"N:M"}]},{scenario:"Ziekenhuis: patiënt→afspraken. Afspraak met 1 arts. Arts in 1 afdeling.",hint:"Patiënt→afspraken (1:N), Arts→afspraken (1:N), Afdeling→arts (1:N).",tables:[{id:"patient",name:"Patiënt",sub:"PatientID"},{id:"afspraak",name:"Afspraak",sub:"AfspraakID"},{id:"arts",name:"Arts",sub:"ArtsID"},{id:"afdeling",name:"Afdeling",sub:"AfdelingID"}],correctLinks:[{a:"patient",b:"afspraak",card:"1:N"},{a:"arts",b:"afspraak",card:"1:N"},{a:"afdeling",b:"arts",card:"1:N"}]},{scenario:"Bibliotheek: lid leent exemplaren. Elk exemplaar is van één boek.",hint:"Lid→Lening (1:N), Exemplaar→Lening (1:N), Boek→Exemplaar (1:N).",tables:[{id:"lid",name:"Lid",sub:"LidID"},{id:"lening",name:"Lening",sub:"LeningID"},{id:"exemplaar",name:"Exemplaar",sub:"ExemplaarID"},{id:"boek",name:"Boek",sub:"BoekID"}],correctLinks:[{a:"lid",b:"lening",card:"1:N"},{a:"exemplaar",b:"lening",card:"1:N"},{a:"boek",b:"exemplaar",card:"1:N"}]},{scenario:"Webshop: product in meerdere categorieën (N:M). Elke review hoort bij één product en één klant.",hint:"Product↔Categorie (N:M), Product→Review (1:N), Klant→Review (1:N).",tables:[{id:"product",name:"Product",sub:"ProductID"},{id:"categorie",name:"Categorie",sub:"CatID"},{id:"review",name:"Review",sub:"ReviewID"},{id:"klant",name:"Klant",sub:"KlantID"}],correctLinks:[{a:"product",b:"categorie",card:"N:M"},{a:"product",b:"review",card:"1:N"},{a:"klant",b:"review",card:"1:N"}]},{scenario:"Gemeente: persoon heeft één adres. Adres ligt in één straat. Straat ligt in één stad.",hint:"Persoon→Adres (N:1), Adres→Straat (N:1), Straat→Stad (N:1). Ketenrelatie!",tables:[{id:"persoon",name:"Persoon",sub:"PersoonID"},{id:"adres",name:"Adres",sub:"AdresID"},{id:"straat",name:"Straat",sub:"StraatID"},{id:"stad",name:"Stad",sub:"StadID"}],correctLinks:[{a:"persoon",b:"adres",card:"N:1"},{a:"adres",b:"straat",card:"N:1"},{a:"straat",b:"stad",card:"N:1"}]}];
+var drScenarios=[{mode:'data2erd',scenario:'Webshop: analyseer Klant→Bestelling.',hint:'KlantID herhaald = 1:N.',obs:'KlantID 1 staat 2x → 1:N!',tables:[{name:'Klant',cols:[{n:'KlantID',t:'pk'},{n:'Naam',t:'n'}],rows:[['1','Jan'],['2','Sara']]},{name:'Bestelling',cols:[{n:'BestNr',t:'pk'},{n:'KlantID',t:'fk'},{n:'Datum',t:'n'}],rows:[['101','1','01/03'],['102','1','05/03'],['103','2','07/03']]}],qs:[{id:'q1',text:'Kardinaliteit?',choices:['1:1','1:N','N:1','N:M'],correct:'1:N',exp:'Jan heeft 2 bestellingen.'},{id:'q2',text:'Waar staat FK?',choices:['Klant','Bestelling'],correct:'Bestelling',exp:'N-kant.'}]},{mode:'data2erd',scenario:'School koppeltabel: Leerling↔Vak?',hint:'L1 staat 2x in Inschrijving.',obs:'L1 staat 2x → N:M!',tables:[{name:'Leerling',cols:[{n:'LeerlingID',t:'pk'},{n:'Naam',t:'n'}],rows:[['L1','Emma'],['L2','Liam']]},{name:'Inschrijving',cols:[{n:'LeerlingID',t:'fk'},{n:'VakID',t:'fk'}],rows:[['L1','V1'],['L1','V2'],['L2','V1']]},{name:'Vak',cols:[{n:'VakID',t:'pk'},{n:'Naam',t:'n'}],rows:[['V1','Wiskunde'],['V2','Info']]}],qs:[{id:'q1',text:'Relatietype?',choices:['1:1','1:N','N:M'],correct:'N:M',exp:'Emma volgt 2 vakken.'},{id:'q2',text:'Functie Inschrijving?',choices:['PK-tabel','Koppeltabel N:M','Back-up tabel'],correct:'Koppeltabel N:M',exp:'Twee FK-kolommen.'}]},{mode:'data2erd',scenario:'Leverancier→Levering: analyseer de data.',hint:'LevID 1 staat 2x → 1:N.',obs:'LevID 1 heeft 2 leverlijnen.',tables:[{name:'Levering',cols:[{n:'LevID',t:'pk'},{n:'Datum',t:'n'}],rows:[['1','03/04'],['2','05/04']]},{name:'LeverLijn',cols:[{n:'LijnNr',t:'pk'},{n:'LevID',t:'fk'},{n:'Product',t:'n'}],rows:[['1','1','Schroeven'],['2','1','Bouten'],['3','2','Moeren']]}],qs:[{id:'q1',text:'Kardinaliteit Levering→LeverLijn?',choices:['1:1','1:N','N:M'],correct:'1:N',exp:'Levering 1 heeft 2 lijnen.'},{id:'q2',text:'Wat is LevID in LeverLijn?',choices:['PK','FK','Gewone kolom'],correct:'FK',exp:'Verwijst naar Levering.'}]},{mode:'erd2data',scenario:'Afdeling(1)→Werknemer(N). Verplicht. Vul FK in.',hint:'IT=A2.',obs:'FK moet bestaande PK zijn.',tables:[{name:'Afdeling',cols:[{n:'AfdelingID',t:'pk'},{n:'Naam',t:'n'}],rows:[['A1','Sales'],['A2','IT']]},{name:'Werknemer',cols:[{n:'WerkID',t:'pk'},{n:'Naam',t:'n'},{n:'AfdelingID',t:'fk'}],rows:[['W1','Anna','A2'],['W2','Bob','???'],['W3','Clara','A1']]}],qs:[{id:'q1',text:'Bob werkt bij IT. ???=?',choices:['A1','A2','NULL'],correct:'A2',exp:'IT=A2.'},{id:'q2',text:'Mag FK NULL bij verplicht?',choices:['Ja','Nee'],correct:'Nee',exp:'Verplicht=NOT NULL.'}]},{mode:'erd2data',scenario:'Leerling(N)↔Vak(M) via koppeltabel. Vul ontbrekende FK in.',hint:'Leerling L2 volgt Wiskunde = V1.',obs:'Koppeltabel heeft 2 FK-kolommen.',tables:[{name:'Vak',cols:[{n:'VakID',t:'pk'},{n:'Naam',t:'n'}],rows:[['V1','Wiskunde'],['V2','Informatica']]},{name:'Inschrijving',cols:[{n:'LeerlingID',t:'fk'},{n:'VakID',t:'fk'}],rows:[['L1','V1'],['L1','V2'],['L2','???']]}],qs:[{id:'q1',text:'L2 volgt Wiskunde. ???=?',choices:['V1','V2','L2'],correct:'V1',exp:'Wiskunde = V1.'},{id:'q2',text:'Mag een leerling 2x hetzelfde vak?',choices:['Ja, altijd','Nee, dubbele rij','Hangt af van PK'],correct:'Hangt af van PK',exp:'Als (LeerlingID,VakID) de PK is: nee.'}]},{mode:'erd2data',scenario:'Klant(1)→Bestelling(N)→LeverLijn. Leg het verband.',hint:'BestNr 201 hoort bij KlantID 1.',obs:'Ketting van FK\'s.',tables:[{name:'Klant',cols:[{n:'KlantID',t:'pk'},{n:'Naam',t:'n'}],rows:[['1','Fatima'],['2','Tom']]},{name:'Bestelling',cols:[{n:'BestNr',t:'pk'},{n:'KlantID',t:'fk'}],rows:[['201','1'],['202','???']]},{name:'LeverLijn',cols:[{n:'LijnNr',t:'pk'},{n:'BestNr',t:'fk'},{n:'Product',t:'n'}],rows:[['1','201','Laptop'],['2','201','Muis'],['3','202','Toetsenbord']]}],qs:[{id:'q1',text:'Bestelling 202 is van Tom (KlantID=2). ???=?',choices:['1','2','NULL'],correct:'2',exp:'Tom = KlantID 2.'},{id:'q2',text:'Hoeveel producten heeft Fatima besteld?',choices:['1','2','3'],correct:'2',exp:'Bestelling 201 heeft lijnen 1 en 2.'}]}];
+
+// ============ STATE ============
+var xp=0,streak=0,level=1,kardIdx=0,optIdx=0,quizIdx=0,dragIdx=0,fkIdx=0,foutIdx=0,normIdx=0,crowsIdx=0;
+var kardAnswered=false,optAnswered=false,optSelA=null,optSelB=null;
+var STORAGE_KEY='dbtrainer_progress',RESET_CODE='RESET2026';
+var mastery={kard:{correct:0,total:0},opt:{correct:0,total:0},quiz:{correct:0,total:0},drag:{correct:0,total:0},fk:{correct:0,total:0},fout:{correct:0,total:0},norm:{correct:0,total:0},crows:{correct:0,total:0},dataread:{correct:0,total:0},concepten:{correct:0,total:0}};
+var srQueues={kard:[],opt:[],quiz:[],fk:[],fout:[],norm:[],crows:[],concepten:[],drag:[]};
+var srSeen={kard:new Set(),opt:new Set(),quiz:new Set(),fk:new Set(),fout:new Set(),norm:new Set(),crows:new Set(),concepten:new Set(),drag:new Set()};
+
+// ============ HELPERS ============
+function addXP(p,l){xp+=p;streak++;document.getElementById('xpVal').textContent=xp;document.getElementById('streakVal').textContent=streak;var n=Math.floor(xp/60)+1;if(n>level){level=n;document.getElementById('levelBadge').textContent='LVL '+level;}var t=document.getElementById('xpToast');t.textContent=l||'+'+p+' XP ⚡';t.classList.remove('fade');t.classList.add('pop');setTimeout(function(){t.classList.add('fade');t.classList.remove('pop');},1600);saveD();}
+function resetStreak(){streak=0;document.getElementById('streakVal').textContent=0;saveD();}
+function renderStreakDots(id,n){var e=document.getElementById(id);if(!e)return;e.innerHTML='';for(var i=0;i<5;i++){var d=document.createElement('div');d.className='sdot'+(i<Math.min(n,5)?' lit':'');e.appendChild(d);}}
+function trackM(m,ok){if(!mastery[m])mastery[m]={correct:0,total:0};mastery[m].total++;if(ok)mastery[m].correct++;saveD();}
+function getMPct(m){var v=mastery[m];return(!v||v.total===0)?0:Math.round(v.correct/v.total*100);}
+// FIX G: srEnq — item can be re-queued on each wrong answer; srSeen only prevents duplicate
+// entries in the queue at the same time (cleared when dequeued so re-mistakes re-enqueue)
+function srEnq(m,i){
+  var k=m+'-'+i;
+  if(!srSeen[m])srSeen[m]=new Set();
+  if(srSeen[m].has(k))return; // already waiting in queue, don't add twice
+  srSeen[m].add(k);
+  srQueues[m].push({idx:i,delay:2});
+  saveD();
+}
+// srDeq clears srSeen entry so a future wrong answer can re-enqueue the item
+function srDeq(m){
+  if(!srQueues[m]||srQueues[m].length===0)return null;
+  srQueues[m].forEach(function(i){if(i.delay>0)i.delay--;});
+  var r=srQueues[m].findIndex(function(i){return i.delay<=0;});
+  if(r===-1)return null;
+  var item=srQueues[m].splice(r,1)[0];
+  var k=m+'-'+item.idx;
+  if(srSeen[m])srSeen[m].delete(k); // allow re-enqueue if answered wrong again
+  return item.idx;
+}
+function renderDiagram(c,a,b,r,aa,ab,cl){document.getElementById(c).innerHTML='<div class="ent-box"><div class="ent-name">'+a+'</div>'+(aa?'<div class="ent-attrs">'+aa.join('<br>')+'</div>':'')+'</div><div class="rel-connector"><div class="rel-line-wrap"><div class="rel-line"></div></div><div class="rel-name">'+r+(cl?' <strong style="color:var(--primary)">'+cl+'</strong>':'')+'</div></div><div class="ent-box"><div class="ent-name">'+b+'</div>'+(ab?'<div class="ent-attrs">'+ab.join('<br>')+'</div>':'')+'</div>';}
+function setP(f,l,c,t){document.getElementById(f).style.width=t?((c/t)*100)+'%':'0%';document.getElementById(l).textContent=c+'/'+t;}
+function toggleHint(m){var h=document.getElementById(m+'-hint');var qm={kard:kardQuestions[kardIdx],opt:optQuestions[optIdx],quiz:quizQuestions[quizIdx],fk:fkQuestions[fkIdx],fout:foutQuestions[foutIdx],norm:normQuestions[normIdx],crows:crowsQuestions[crowsIdx]};var q=qm[m];if(!q)return;h.classList.contains('show')?h.classList.remove('show'):(h.textContent='💡 '+q.hint,h.classList.add('show'));}
+function switchPanel(id,btn){document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.htab').forEach(function(b){b.classList.remove('active');});var p=document.getElementById('panel-'+id);if(p)p.classList.add('active');if(btn){btn.classList.add('active');btn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});}window.scrollTo(0,0);try{if(id==='kard')initKard();if(id==='opt')initOpt();if(id==='quiz')initQuiz();if(id==='drag')initDrag();if(id==='fk')initFK();if(id==='fout')initFout();if(id==='norm')initNorm();if(id==='crows')initCrows();if(id==='dataread')drInit();if(id==='concepten')conceptRender();if(id==='mix'){document.getElementById('mix-qscreen').style.display='none';document.getElementById('mix-results').style.display='none';document.getElementById('mix-start').style.display='';}if(id==='dashboard')renderDashboard();}catch(e){console.warn(e);}}
+function showResults(pid,naam,tot){var el=document.getElementById(pid);if(!el)return;Array.from(el.children).forEach(function(c){if(!c.classList||!c.classList.contains('results-overlay')){c.setAttribute('data-h','1');c.style.display='none';}});var o=el.querySelector('.results-overlay');if(o)o.remove();var ov=document.createElement('div');ov.className='results-overlay';ov.innerHTML='<div class="results-screen"><div style="font-size:4rem;margin-bottom:12px">🎉</div><div class="results-title">'+naam+' voltooid!</div><div class="results-xp">'+xp+' XP</div><div class="results-sub">Alle '+tot+' vragen beantwoord.</div><div class="btn-row" style="justify-content:center"><button class="btn" onclick="restartMode(\''+pid+'\',\''+naam.replace(/'/g,"\\'")+'\')">↺ Opnieuw</button></div></div>';el.appendChild(ov);}
+function srClearModule(m){if(srQueues[m])srQueues[m]=[];if(srSeen[m])srSeen[m]=new Set();}
+function restartMode(pid,naam){var el=document.getElementById(pid);if(!el)return;var o=el.querySelector('.results-overlay');if(o)o.remove();el.querySelectorAll('[data-h]').forEach(function(c){c.removeAttribute('data-h');c.style.display='';});if(naam==='Kardinaliteit'){kardIdx=0;srClearModule('kard');initKard();}if(naam==='Optionaliteit'){optIdx=0;srClearModule('opt');initOpt();}if(naam==='Quiz'){quizIdx=0;srClearModule('quiz');initQuiz();}if(naam==='FK plaatsen'){fkIdx=0;srClearModule('fk');initFK();}if(naam==='Fout zoeken'){foutIdx=0;srClearModule('fout');initFout();}if(naam==='Normalisatie'){normIdx=0;srClearModule('norm');initNorm();}if(naam==='Verbind tabellen'){dragIdx=0;srClearModule('drag');initDrag();}if(naam==="Crow's Foot"){crowsIdx=0;srClearModule('crows');initCrows();}if(naam==='Data→ERD'){drIdx=0;drDone=false;drInit();}if(naam==='Concepten'){conceptCIdx=0;conceptSIdx=0;conceptHIdx=0;srClearModule('concepten');conceptRender();}saveD();}
+
+// ============ MODULES ============
+function initKard(){if(kardIdx>=kardQuestions.length){showResults('panel-kard','Kardinaliteit',kardIdx);return;}kardAnswered=false;var q=kardQuestions[kardIdx];document.getElementById('kard-scenario').textContent=q.scenario;setP('kard-prog','kard-prog-label',kardIdx,kardQuestions.length);document.getElementById('kard-next-btn').disabled=true;document.getElementById('kard-feedback').className='feedback-box';document.getElementById('kard-hint').className='hint-box';renderDiagram('kard-diagram',q.entityA,q.entityB,q.relation,q.attrsA,q.attrsB,null);renderStreakDots('kard-streak',streak);var g=document.getElementById('kard-choices');g.innerHTML='';[{l:"1:1",d:"Één-op-één"},{l:"1:N",d:"Één-op-veel"},{l:"N:1",d:"Veel-op-één"},{l:"N:M",d:"Veel-op-veel"}].forEach(function(c){var b=document.createElement('button');b.className='choice-btn';b.innerHTML=c.l+'<span class="choice-sublabel">'+c.d+'</span>';b.onclick=function(){if(kardAnswered)return;kardAnswered=true;document.querySelectorAll('#kard-choices .choice-btn').forEach(function(x){x.onclick=null;});var fb=document.getElementById('kard-feedback');if(c.l===q.correct){b.classList.add('correct');fb.textContent='✅ '+q.explanation;fb.className='feedback-box show ok';addXP(10);trackM('kard',true);}else{b.classList.add('wrong');fb.textContent='❌ '+q.explanation;fb.className='feedback-box show bad';resetStreak();trackM('kard',false);srEnq('kard',kardIdx);}document.getElementById('kard-next-btn').disabled=false;renderStreakDots('kard-streak',streak);};g.appendChild(b);});}
+function nextKard(){var s=srDeq('kard');if(s!==null&&s!==kardIdx){kardIdx=s;}else{kardIdx=kardIdx+1;}saveD();initKard();}
+function initOpt(){if(optIdx>=optQuestions.length){showResults('panel-opt','Optionaliteit',optIdx);return;}optAnswered=false;optSelA=optSelB=null;var q=optQuestions[optIdx];document.getElementById('opt-scenario').textContent=q.scenario;setP('opt-prog','opt-prog-label',optIdx,optQuestions.length);document.getElementById('opt-next-btn').disabled=true;document.getElementById('opt-feedback').className='feedback-box';document.getElementById('opt-hint').className='hint-box';renderDiagram('opt-diagram',q.entityA,q.entityB,q.relation,null,null,q.cardLabel);renderStreakDots('opt-streak',streak);document.getElementById('opt-choices').innerHTML='<div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap"><div style="display:flex;align-items:center;gap:6px;background:var(--green-light);border:1.5px solid var(--green);border-radius:6px;padding:6px 10px"><span style="font-family:JetBrains Mono,monospace;font-weight:900;color:var(--green);font-size:1rem">||</span><span style="font-size:.78rem;font-weight:700;color:var(--green)">= Verplicht (NOT NULL)</span></div><div style="display:flex;align-items:center;gap:6px;background:var(--yellow-light);border:1.5px solid var(--yellow);border-radius:6px;padding:6px 10px"><span style="font-family:JetBrains Mono,monospace;font-weight:900;color:var(--yellow);font-size:1rem">O|</span><span style="font-size:.78rem;font-weight:700;color:var(--yellow)">= Optioneel (mag NULL)</span></div></div>'+'<div class="choice-group"><div class="cg-label">'+q.entityA+'</div><div class="opt-grid" id="opt-a"><button class="choice-btn" onclick="pickOpt(\'a\',\'verplicht\',this)">||<span class="choice-sublabel">Verplicht</span></button><button class="choice-btn" onclick="pickOpt(\'a\',\'optioneel\',this)">O|<span class="choice-sublabel">Optioneel</span></button></div></div><div class="choice-group"><div class="cg-label">'+q.entityB+'</div><div class="opt-grid" id="opt-b"><button class="choice-btn" onclick="pickOpt(\'b\',\'verplicht\',this)">||<span class="choice-sublabel">Verplicht</span></button><button class="choice-btn" onclick="pickOpt(\'b\',\'optioneel\',this)">O|<span class="choice-sublabel">Optioneel</span></button></div></div>';}
+function pickOpt(s,v,b){if(optAnswered)return;document.querySelectorAll('#opt-'+(s==='a'?'a':'b')+' .choice-btn').forEach(function(x){x.classList.remove('selected');});b.classList.add('selected');if(s==='a')optSelA=v;else optSelB=v;}
+function checkOpt(){if(optAnswered)return;var fb=document.getElementById('opt-feedback');if(!optSelA||!optSelB){fb.textContent='⚠️ Kies beide kanten!';fb.className='feedback-box show warn';return;}optAnswered=true;var q=optQuestions[optIdx];var ok=optSelA===q.correctA&&optSelB===q.correctB;['a','b'].forEach(function(side){var correct=side==='a'?q.correctA:q.correctB;var chosen=side==='a'?optSelA:optSelB;document.querySelectorAll('#opt-'+side+' .choice-btn').forEach(function(btn){var val=btn.textContent.includes('||')?'verplicht':'optioneel';if(val===correct){btn.classList.add('correct');btn.classList.remove('selected');}else if(val===chosen&&chosen!==correct){btn.classList.add('wrong');btn.classList.remove('selected');}});});if(ok){fb.textContent='✅ '+q.explanation;fb.className='feedback-box show ok';addXP(10);trackM('opt',true);}else{var corrA=q.correctA==='verplicht'?'Verplicht (||)':'Optioneel (O|)';var corrB=q.correctB==='verplicht'?'Verplicht (||)':'Optioneel (O|)';fb.innerHTML='❌ '+q.explanation+'<br><small style="opacity:.85">Juist: <strong>'+q.entityA+'</strong> = '+corrA+' · <strong>'+q.entityB+'</strong> = '+corrB+'</small>';fb.className='feedback-box show bad';resetStreak();trackM('opt',false);srEnq('opt',optIdx);}document.getElementById('opt-next-btn').disabled=false;renderStreakDots('opt-streak',streak);}
+function nextOpt(){var s=srDeq('opt');if(s!==null&&s!==optIdx){optIdx=s;}else{optIdx=optIdx+1;}saveD();initOpt();}
+
+// FIX 3: mkQuizInit - removed unused setIdx/nextFn parameters, explicit signature
+function mkQuizInit(pref,arr,getIdx){
+  return function(){
+    var idx=getIdx();
+    if(idx>=arr.length){
+      var names={quiz:'Quiz',fk:'FK plaatsen',fout:'Fout zoeken',norm:'Normalisatie',crows:"Crow's Foot"};
+      showResults('panel-'+pref,names[pref]||pref,idx);return;
+    }
+    var q=arr[idx];
+    if(document.getElementById(pref+'-scenario'))document.getElementById(pref+'-scenario').textContent=q.scenario||(q.question||'');
+    setP(pref+'-prog',pref+'-prog-label',idx,arr.length);
+    if(document.getElementById(pref+'-next-btn'))document.getElementById(pref+'-next-btn').disabled=true;
+    document.getElementById(pref+'-feedback').className='feedback-box';
+    if(document.getElementById(pref+'-hint'))document.getElementById(pref+'-hint').className='hint-box';
+    renderStreakDots(pref+'-streak',streak); // FIX 9: streak dots always rendered
+    if(pref==='fk')renderDiagram('fk-diagram',q.entityA,q.entityB,'→',null,null,q.card);
+    if(pref==='crows'){
+      var dg=document.getElementById('crows-diagram');
+      dg.innerHTML='<div class="ent-box"><div class="ent-name">'+q.diagram.a+'</div></div><div class="rel-connector"><div class="rel-line-wrap"><div class="rel-end" style="font-size:1.1rem;font-weight:900;color:var(--primary)">'+q.diagram.symA+'</div><div class="rel-line"></div><div class="rel-end" style="font-size:1.1rem;font-weight:900;color:var(--primary)">'+q.diagram.symB+'</div></div></div><div class="ent-box"><div class="ent-name">'+q.diagram.b+'</div></div>';
+      if(document.getElementById('crows-question'))document.getElementById('crows-question').textContent=q.question;
+    }
+    if(pref==='fout'){
+      if(document.getElementById('fout-question'))document.getElementById('fout-question').textContent=q.question||'Wat is er fout?';
+      var dc=document.getElementById('fout-diagram');dc.innerHTML='';
+      (q.diagram||[]).forEach(function(d){dc.innerHTML+='<div style="display:flex;align-items:center;justify-content:center;gap:0;width:100%"><div class="ent-box" style="border-color:var(--red)"><div class="ent-name" style="color:var(--red)">'+d.a+'</div></div><div class="rel-connector"><div class="rel-line-wrap"><div class="rel-line" style="background:var(--red)"></div></div><div class="rel-name" style="color:var(--red)"><strong>'+d.card+'</strong></div><div style="font-size:.7rem;color:var(--text-muted);margin-top:4px">'+d.fkInfo+'</div></div><div class="ent-box" style="border-color:var(--red)"><div class="ent-name" style="color:var(--red)">'+d.b+'</div></div></div>';});
+    }
+    if(pref==='norm'){document.getElementById('norm-table-area').innerHTML=q.table||'';}
+    var opts=q.options;var L=['A','B','C','D'];
+    var c=document.getElementById(pref+'-options');c.innerHTML='';
+    opts.forEach(function(o,i){
+      var ot=typeof o==='string'?o:(o.label?o.label+(o.desc?' — '+o.desc:''):o.l||'');
+      var d=document.createElement('div');d.className='quiz-opt';
+      d.innerHTML='<div class="letter">'+L[i]+'</div><div style="font-size:.88rem;font-weight:700">'+ot+'</div>';
+      d.onclick=function(){
+        document.querySelectorAll('#'+pref+'-options .quiz-opt').forEach(function(x){x.onclick=null;});
+        document.querySelectorAll('#'+pref+'-options .quiz-opt')[q.correct].classList.add('correct');
+        var fb=document.getElementById(pref+'-feedback');
+        if(i===q.correct){fb.textContent='✅ '+q.explanation;fb.className='feedback-box show ok';addXP(10);trackM(pref,true);}
+        else{d.classList.add('wrong');fb.textContent='❌ '+q.explanation;fb.className='feedback-box show bad';resetStreak();trackM(pref,false);srEnq(pref,idx);}
+        document.getElementById(pref+'-next-btn').disabled=false;renderStreakDots(pref+'-streak',streak);
+      };
+      c.appendChild(d);
+    });
+  };
+}
+
+var initQuiz=mkQuizInit('quiz',quizQuestions,function(){return quizIdx;});
+var initFK=mkQuizInit('fk',fkQuestions,function(){return fkIdx;});
+var initFout=mkQuizInit('fout',foutQuestions,function(){return foutIdx;});
+var initNorm=mkQuizInit('norm',normQuestions,function(){return normIdx;});
+var initCrows=mkQuizInit('crows',crowsQuestions,function(){return crowsIdx;});
+function nextQuiz(){var s=srDeq('quiz');if(s!==null&&s!==quizIdx){quizIdx=s;}else{quizIdx=quizIdx+1;}saveD();initQuiz();}
+function nextFK(){var s=srDeq('fk');if(s!==null&&s!==fkIdx){fkIdx=s;}else{fkIdx=fkIdx+1;}saveD();initFK();}
+function nextFout(){var s=srDeq('fout');if(s!==null&&s!==foutIdx){foutIdx=s;}else{foutIdx=foutIdx+1;}saveD();initFout();}
+function nextNorm(){var s=srDeq('norm');if(s!==null&&s!==normIdx){normIdx=s;}else{normIdx=normIdx+1;}saveD();initNorm();}
+function nextCrows(){var s=srDeq('crows');if(s!==null&&s!==crowsIdx){crowsIdx=s;}else{crowsIdx=crowsIdx+1;}saveD();initCrows();}
+
+// ============ DRAG ============
+var dragLinks=[],dragSelFirst=null;
+function initDrag(){
+  if(dragIdx>=dragQuestions.length){showResults('panel-drag','Verbind tabellen',dragIdx);return;}
+  var q=dragQuestions[dragIdx];dragLinks=[];dragSelFirst=null;
+  document.getElementById('drag-scenario').textContent=q.scenario;
+  document.getElementById('drag-feedback').className='feedback-box';
+  document.getElementById('drag-next-btn').style.display='none';
+  document.getElementById('drag-check-btn').style.display='';
+  document.getElementById('drag-step-hint').style.display='none';
+  document.getElementById('drag-picker-area').innerHTML='';
+  setP('drag-prog','drag-prog-label',dragIdx,dragQuestions.length);
+  renderStreakDots('drag-streak',streak);
+  renderStreakDots('kard-streak',streak); // FIX 9: drag module gets streak update (uses shared kard dots)
+  var g=document.getElementById('conn-table-grid');g.innerHTML='';
+  q.tables.forEach(function(t){
+    var c=document.createElement('div');c.className='conn-table-card';c.dataset.id=t.id;
+    c.innerHTML='<div class="conn-card-name">📋 '+t.name+'</div><div class="conn-card-sub">'+t.sub+'</div>';
+    c.onclick=function(){selectTable(t.id);};g.appendChild(c);
+  });renderConnLinks();
+}
+function updateDragStepHint(){var hint=document.getElementById('drag-step-hint');var msg=document.getElementById('drag-step-msg');if(dragSelFirst){var q=dragQuestions[dragIdx];var n=q.tables.find(function(t){return t.id===dragSelFirst;});hint.style.display='';msg.textContent=(n?n.name:dragSelFirst)+' geselecteerd — klik nu een tweede tabel om te verbinden.';}else{hint.style.display='none';}}
+function selectTable(id){var cards=document.querySelectorAll('.conn-table-card');if(!dragSelFirst){dragSelFirst=id;cards.forEach(function(c){c.classList.toggle('conn-selected',c.dataset.id===id);});updateDragStepHint();}else if(dragSelFirst===id){dragSelFirst=null;cards.forEach(function(c){c.classList.remove('conn-selected');});updateDragStepHint();}else{document.getElementById('drag-picker-area').innerHTML='';if(!dragLinks.find(function(l){return(l.a===dragSelFirst&&l.b===id)||(l.a===id&&l.b===dragSelFirst);}))openPicker(dragSelFirst,id);cards.forEach(function(c){c.classList.remove('conn-selected');});dragSelFirst=null;updateDragStepHint();}}
+function openPicker(a,b){var q=dragQuestions[dragIdx];var na=q.tables.find(function(t){return t.id===a;});var nb=q.tables.find(function(t){return t.id===b;});var area=document.getElementById('drag-picker-area');area.innerHTML='';var descs={'1:1':'één op één','1:N':'één op veel','N:1':'veel op één','N:M':'veel op veel'};var p=document.createElement('div');p.className='conn-inline-picker';p.style.marginBottom='12px';p.innerHTML='<div class="cip-title">Verbinding: <span class="cip-ent">'+(na?na.name:a)+'</span> ↔ <span class="cip-ent">'+(nb?nb.name:b)+'</span><div style="font-size:.72rem;color:var(--text-muted);font-weight:600;margin-top:2px">Kies de kardinaliteit (van links → rechts)</div></div><div class="cip-choices">'+['1:1','1:N','N:1','N:M'].map(function(c){return'<button class="cip-btn" onclick="pickConn(\''+a+'\',\''+b+'\',\''+c+'\')"><span class="cip-card">'+c+'</span><span style="font-size:.68rem;font-weight:600;color:var(--text-muted);display:block;margin-top:3px">'+(descs[c]||'')+'</span></button>';}).join('')+'</div><button class="cip-cancel" onclick="document.getElementById(\'drag-picker-area\').innerHTML=\'\' ">✕ Annuleer</button>';area.appendChild(p);}
+function pickConn(a,b,c){document.getElementById('drag-picker-area').innerHTML='';dragLinks.push({a:a,b:b,card:c});renderConnLinks();}
+function removeLink(i){dragLinks.splice(i,1);renderConnLinks();}
+function renderConnLinks(){var q=dragQuestions[dragIdx];var area=document.getElementById('conn-links-area');area.innerHTML='';if(dragLinks.length===0){area.insertAdjacentHTML('afterbegin','<div class="conn-empty">📭 Nog geen verbindingen — klik twee tabellen aan om te starten.</div>');return;}var header=document.createElement('div');header.style.cssText='font-size:.72rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px';header.textContent='Verbindingen ('+dragLinks.length+') — klik ✕ om te verwijderen';area.appendChild(header);dragLinks.forEach(function(l,i){var na=q.tables.find(function(t){return t.id===l.a;});var nb=q.tables.find(function(t){return t.id===l.b;});var r=document.createElement('div');r.className='conn-link-row';r.innerHTML='<span class="conn-link-ent">'+(na?na.name:l.a)+'</span><span class="conn-link-badge">'+l.card+'</span><span class="conn-link-ent">'+(nb?nb.name:l.b)+'</span><button class="conn-link-del" title="Verwijder verbinding" onclick="removeLink('+i+')">✕</button>';area.appendChild(r);});}
+
+// FIX 6: checkDragAnswer now handles N:M symmetric match correctly
+function checkDragAnswer(){
+  var q=dragQuestions[dragIdx],cl=q.correctLinks,sc=0,hn=[];
+  cl.forEach(function(c){
+    var f=dragLinks.find(function(l){
+      var fwdMatch=(l.a===c.a&&l.b===c.b&&l.card===c.card);
+      var revMatch=(l.a===c.b&&l.b===c.a);
+      if(!revMatch)return fwdMatch;
+      // FIX 6: symmetric card matching for all types including N:M
+      var revCardMatch=(l.card===c.card)||
+        (c.card==='1:N'&&l.card==='N:1')||
+        (c.card==='N:1'&&l.card==='1:N');
+      return fwdMatch||(revMatch&&revCardMatch);
+    });
+    if(f)sc++;
+    else{var a=q.tables.find(function(t){return t.id===c.a;});var b=q.tables.find(function(t){return t.id===c.b;});hn.push((a?a.name:c.a)+' '+c.card+' '+(b?b.name:c.b));}
+  });
+  var fb=document.getElementById('drag-feedback');
+  if(sc===cl.length){fb.textContent='✅ Alle correct!';fb.className='feedback-box show ok';addXP(30);trackM('drag',true);document.getElementById('drag-check-btn').style.display='none';document.getElementById('drag-next-btn').style.display='';}
+  else{fb.innerHTML='❌ '+sc+'/'+cl.length+' correct. Ontbrekend: <strong>'+hn.join('</strong>, <strong>')+'</strong><br><span style="font-size:.82rem;font-weight:600;opacity:.85">Je kan hier toch op Volgende drukken om door te gaan.</span>';fb.className='feedback-box show bad';trackM('drag',false);srEnq('drag',dragIdx);document.getElementById('drag-next-btn').style.display='';}
+}
+function resetDrag(){dragLinks=[];dragSelFirst=null;document.getElementById('drag-picker-area').innerHTML='';initDrag();}
+function toggleDragHint(){var q=dragQuestions[dragIdx];var h=document.getElementById('drag-hint');if(!q||!q.hint)return;h.classList.contains('show')?h.classList.remove('show'):(h.textContent='💡 '+q.hint,h.classList.add('show'));}
+function nextDrag(){var s=srDeq('drag');if(s!==null&&s!==dragIdx){dragIdx=s;saveD();initDrag();return;}dragIdx++;saveD();if(dragIdx>=dragQuestions.length)showResults('panel-drag','Verbind tabellen',dragIdx);else initDrag();}
+
+// ============ DATA→ERD ============
+var drIdx=0,drMode='data2erd',drSels={},drDone=false;
+function drInit(){
+  var pool=drScenarios.filter(function(s){return s.mode===drMode;});
+  if(drIdx>=pool.length)drIdx=0; // safety clamp
+  var q=pool[drIdx];
+  drSels={};drDone=false;
+  document.getElementById('dr-prog').style.width=((drIdx/pool.length)*100)+'%';
+  document.getElementById('dr-prog-lbl').textContent=(drIdx+1)+'/'+pool.length;
+  document.getElementById('dr-scenario').textContent=q.scenario;
+  document.getElementById('dr-feedback').className='feedback-box';
+  document.getElementById('dr-hint').className='hint-box';
+  document.getElementById('dr-next-btn').style.display='none';
+  // FIX 9: renderStreakDots for dataread (no dedicated streak dots element, skip gracefully)
+  var obs=document.getElementById('dr-obs');
+  if(q.obs){obs.textContent=q.obs;obs.style.display='';}else obs.style.display='none';
+  var w=document.getElementById('dr-tables');w.innerHTML='';
+  q.tables.forEach(function(t){
+    var b=document.createElement('div');b.className='dr-tbl-block';
+    var h='<div class="dr-tbl-name">'+t.name+'</div><table class="dr-tbl"><thead><tr>';
+    t.cols.forEach(function(c){h+='<th'+( c.t==='pk'?' class="pk"':c.t==='fk'?' class="fk"':'')+'>'+c.n+'</th>';});
+    h+='</tr></thead><tbody>';
+    t.rows.forEach(function(r){h+='<tr>';r.forEach(function(c,i){var tp=t.cols[i]?t.cols[i].t:'n';h+='<td'+(tp==='pk'?' class="dr-td-pk"':tp==='fk'?' class="dr-td-fk"':'')+'>'+c+'</td>';});h+='</tr>';});
+    h+='</tbody></table>';b.innerHTML=h;w.appendChild(b);
+  });
+  var a=document.getElementById('dr-subqs');a.innerHTML='';
+  q.qs.forEach(function(sq,qi){
+    var d=document.createElement('div');d.className='dr-subq';
+    d.innerHTML='<div class="dr-subq-txt"><strong>V'+(qi+1)+'.</strong> '+sq.text+'</div>';
+    var ch=document.createElement('div');ch.className='dr-choices';ch.id='dr-ch-'+sq.id;
+    sq.choices.forEach(function(c){
+      var btn=document.createElement('button');btn.className='dr-choice';btn.textContent=c;
+      btn.addEventListener('click',function(){
+        if(drDone)return;drSels[sq.id]=c;
+        document.getElementById('dr-ch-'+sq.id).querySelectorAll('.dr-choice').forEach(function(b){b.classList.remove('sel');});
+        btn.classList.add('sel');
+      });ch.appendChild(btn);
+    });d.appendChild(ch);a.appendChild(d);
+  });
+}
+// FIX A: reset drIdx AND drDone on mode switch so the new pool always starts at question 0
+function drSwitchMode(m,b){drMode=m;drIdx=0;drDone=false;document.querySelectorAll('.dr-mode-tab').forEach(function(x){x.classList.remove('active');});b.classList.add('active');saveD();drInit();}
+function drCheck(){
+  if(drDone)return;
+  var pool=drScenarios.filter(function(s){return s.mode===drMode;});
+  var q=pool[drIdx];
+  if(q.qs.filter(function(s){return!drSels[s.id];}).length>0){document.getElementById('dr-feedback').textContent='⚠️ Beantwoord alles.';document.getElementById('dr-feedback').className='feedback-box show warn';return;}
+  drDone=true;var cc=0;
+  q.qs.forEach(function(s){
+    var ok=drSels[s.id]===s.correct;if(ok)cc++;
+    document.getElementById('dr-ch-'+s.id).querySelectorAll('.dr-choice').forEach(function(b){
+      if(b.textContent===s.correct)b.classList.add('ok');
+      else if(b.textContent===drSels[s.id]&&!ok)b.classList.add('fail');
+    });
+  });
+  var fb=document.getElementById('dr-feedback');
+  if(cc===q.qs.length){fb.textContent='✅ Correct!';fb.className='feedback-box show ok';addXP(cc*8);trackM('dataread',true);}
+  else{fb.textContent=cc+'/'+q.qs.length;fb.className='feedback-box show bad';trackM('dataread',false);}
+  document.getElementById('dr-next-btn').style.display='';
+}
+// FIX 5: drNext now shows a completion message instead of silently resetting
+// FIX B: drNext — drIdx is now a straight per-mode counter; reset to 0 only after full cycle
+function drNext(){
+  drIdx++;
+  var pool=drScenarios.filter(function(s){return s.mode===drMode;});
+  if(drIdx>=pool.length){
+    drIdx=0;
+    var fb=document.getElementById('dr-feedback');
+    fb.textContent='🎉 Alle '+pool.length+' scenario\'s voltooid! Opnieuw vanaf het begin.';
+    fb.className='feedback-box show ok';
+    document.getElementById('dr-next-btn').style.display='none';
+    saveD();
+    setTimeout(function(){drInit();},2000);
+    return;
+  }
+  saveD();drInit();
+}
+function drHint(){var p=drScenarios.filter(function(s){return s.mode===drMode;});if(drIdx>=p.length)return;var q=p[drIdx];var h=document.getElementById('dr-hint');h.classList.contains('show')?h.classList.remove('show'):(h.textContent='💡 '+q.hint,h.classList.add('show'));}
+
+// ============ CONCEPTEN MODULE ============
+// Mode 1: Classificeer — gegeven een item, kies het type
+var conceptClassifyQ=[
+  // --- Entiteit vs Attribuut ---
+  {scenario:'Een webshop slaat klantgegevens op. Is "Klant" een entiteit of een attribuut?',hint:'Heeft "Klant" meerdere eigen eigenschappen? Dan is het een entiteit.',correct:'entiteit',options:['entiteit','attribuut','relatie','zwakke entiteit'],explanation:'"Klant" heeft eigen eigenschappen (naam, e-mail, adres) → zelfstandig object → entiteit.'},
+  {scenario:'Bij een klant sla je de geboortedatum op. Is "Geboortedatum" een entiteit of een attribuut?',hint:'Beschrijft het een eigenschap van een object? Dan is het een attribuut.',correct:'attribuut',options:['entiteit','attribuut','relatie','meerwaardig attribuut'],explanation:'"Geboortedatum" beschrijft de klant maar heeft zelf geen verdere eigenschappen → attribuut.'},
+  {scenario:'"Kleur" bij een product: de webshop biedt meerdere kleuren per product aan EN elk kleur heeft een eigen hexcode en voorraad. Is "Kleur" nu een entiteit of een attribuut?',hint:'Heeft het eigen sub-eigenschappen (hexcode, voorraad)? Dan is het een entiteit.',correct:'entiteit',options:['attribuut','entiteit','meerwaardig attribuut','relatie'],explanation:'Omdat "Kleur" zelf extra eigenschappen heeft (hexcode, voorraad) is het een aparte entiteit, niet meer een attribuut.'},
+  {scenario:'"Kleur" bij een product: de webshop slaat alleen de kleurNaam op, niet meer info. Is "Kleur" een entiteit of een attribuut?',hint:'Heeft het alleen één eenvoudige waarde zonder verdere eigenschappen?',correct:'attribuut',options:['entiteit','attribuut','zwakke entiteit','relatie'],explanation:'Als "Kleur" alleen één waarde is zonder eigen eigenschappen → attribuut.'},
+  {scenario:'"Inschrijving" in een cursussysteem (bevat studentID, cursusID, datum, cijfer). Wat is het?',hint:'Heeft het FK\'s naar andere entiteiten + eigen attributen?',correct:'relatie/koppelentiteit',options:['entiteit','attribuut','relatie/koppelentiteit','zwakke entiteit'],explanation:'"Inschrijving" koppelt Student en Cursus én heeft eigen attributen (datum, cijfer) → koppelentiteit (associatieve entiteit).'},
+  {scenario:'Een auto heeft een "Motor". De motor heeft vermogen, cilinderinhoud en brandstoftype. Is "Motor" een entiteit of een attribuut?',hint:'Heeft het meerdere eigen properties? Kan het onafhankelijk bestaan?',correct:'entiteit',options:['attribuut','entiteit','samengesteld attribuut','relatie'],explanation:'"Motor" heeft meerdere eigen eigenschappen → het is een entiteit, niet slechts een attribuut van Auto.'},
+  {scenario:'Een persoon heeft een "Naam" (voornaam + achternaam). Is "Naam" enkelvoudig of samengesteld?',hint:'Kan je het opsplitsen in zinvolle delen?',correct:'samengesteld attribuut',options:['enkelvoudig attribuut','samengesteld attribuut','meerwaardig attribuut','afgeleid attribuut'],explanation:'"Naam" bestaat uit deelattributen (voornaam, achternaam) → samengesteld attribuut.'},
+  {scenario:'Een persoon heeft één postcode. Is "Postcode" enkelvoudig of samengesteld?',hint:'Kan je het zinvol opsplitsen?',correct:'enkelvoudig attribuut',options:['enkelvoudig attribuut','samengesteld attribuut','meerwaardig attribuut','afgeleid attribuut'],explanation:'"Postcode" is één atomaire waarde → enkelvoudig attribuut.'},
+  // --- Meerwaardig ---
+  {scenario:'Een persoon kan meerdere telefoonnummers hebben. Wat voor attribuut is "Telefoonnummer"?',hint:'Kan er meer dan één waarde zijn per persoon?',correct:'meerwaardig attribuut',options:['enkelvoudig attribuut','samengesteld attribuut','meerwaardig attribuut','afgeleid attribuut'],explanation:'Meerdere waarden per instantie → meerwaardig attribuut. In de DB: aparte tabel.'},
+  {scenario:'Een student kan meerdere diploma\'s hebben. Wat voor attribuut is "Diploma"?',hint:'Één student, meerdere diploma\'s.',correct:'meerwaardig attribuut',options:['enkelvoudig attribuut','meerwaardig attribuut','afgeleid attribuut','samengesteld attribuut'],explanation:'Meerdere diploma\'s per student → meerwaardig. Oplossing: aparte tabel Diploma(StudentID FK, Naam).'},
+  // --- Afgeleid ---
+  {scenario:'Een persoon heeft "Geboortedatum" opgeslagen. De applicatie toont ook "Leeftijd". Wat is "Leeftijd"?',hint:'Kan je het berekenen uit een ander attribuut?',correct:'afgeleid attribuut',options:['enkelvoudig attribuut','meerwaardig attribuut','afgeleid attribuut','samengesteld attribuut'],explanation:'"Leeftijd" = (huidige datum - geboortedatum) → afgeleid. Wordt niet opgeslagen, maar berekend.'},
+  {scenario:'Een bestelling heeft "AantalItems" en "PrijsPerItem". "TotaalPrijs" verschijnt in het scherm. Wat is "TotaalPrijs"?',hint:'Wordt het berekend of opgeslagen?',correct:'afgeleid attribuut',options:['enkelvoudig attribuut','afgeleid attribuut','samengesteld attribuut','meerwaardig attribuut'],explanation:'"TotaalPrijs" = AantalItems × PrijsPerItem → afgeleid attribuut.'},
+  // --- Zwakke entiteit ---
+  {scenario:'"Bestelling" bestaat zonder Klant niet in jouw systeem. Elke bestelling krijgt zijn PK pas echt zinvol via de klant. Is "Bestelling" een zwakke entiteit?',hint:'Kan het bestaan zonder de "ouder-entiteit"?',correct:'Ja, zwakke entiteit',options:['Nee, gewone entiteit','Ja, zwakke entiteit','Nee, het is een attribuut','Nee, het is een relatie'],explanation:'Als een entiteit niet zinvol kan bestaan zonder een andere (de ouder) → zwakke entiteit. PK is partieel afhankelijk van ouder.'},
+  {scenario:'"LeverLijn" heeft als PK (LeveringID + LijnNummer). Zonder levering bestaat een leverlijn niet. Wat is het?',hint:'De PK bevat een FK naar de ouder.',correct:'zwakke entiteit',options:['gewone entiteit','zwakke entiteit','koppelentiteit','associatieve entiteit'],explanation:'"LeverLijn" heeft een partiële sleutel (LijnNummer) die alleen zinvol is samen met LeveringID → zwakke entiteit.'},
+  {scenario:'"Product" heeft eigen ProductID, naam, prijs. Het bestaat onafhankelijk in het systeem. Wat is het?',hint:'Heeft het een eigen unieke sleutel zonder ouderentiteit?',correct:'gewone (sterke) entiteit',options:['zwakke entiteit','gewone (sterke) entiteit','samengesteld attribuut','koppelentiteit'],explanation:'"Product" heeft een eigen onafhankelijke PK → sterke (gewone) entiteit.'},
+  // --- Relatie herkennen ---
+  {scenario:'"Werkt in" verbindt Werknemer en Afdeling. Wat is "Werkt in"?',hint:'Legt het een verband tussen twee entiteiten?',correct:'relatie',options:['entiteit','attribuut','relatie','zwakke entiteit'],explanation:'"Werkt in" beschrijft het verband tussen twee entiteiten → relatie.'},
+  {scenario:'"Volgt" verbindt Student en Cursus, en heeft zelf ook een attribuut "Cijfer". Wat is "Volgt"?',hint:'Heeft de relatie zelf attributen?',correct:'relatie met attribuut (koppelentiteit)',options:['gewone relatie','relatie met attribuut (koppelentiteit)','zwakke entiteit','meerwaardig attribuut'],explanation:'Een relatie met eigen attributen wordt best gemodelleerd als koppelentiteit (associatieve entiteit).'},
+];
+
+// Mode 2: Sorteer — sleep items naar de juiste categorie
+var conceptSortQ=[
+  {scenario:'Sorteer elk element naar de juiste categorie.',hint:'Entiteit = zelfstandig object met PK. Attribuut = eigenschap. Relatie = verband.',items:[
+    {name:'Klant',correct:'Entiteit'},{name:'Naam',correct:'Attribuut'},{name:'Bestelling',correct:'Entiteit'},
+    {name:'Plaatst',correct:'Relatie'},{name:'BestelDatum',correct:'Attribuut'},{name:'Prijs',correct:'Attribuut'}
+  ],categories:['Entiteit','Attribuut','Relatie'],explanation:'Klant en Bestelling zijn entiteiten. Naam, BestelDatum en Prijs zijn attributen. Plaatst is de relatie.'},
+  {scenario:'Sorteer naar attribuuttype.',hint:'Afgeleid = berekend. Meerwaardig = meerdere waarden. Samengesteld = opsplitsbaar. Enkelvoudig = één atomaire waarde.',items:[
+    {name:'Leeftijd (berekend uit geboortedatum)',correct:'Afgeleid'},{name:'Telefoonnummer (meerdere mogelijk)',correct:'Meerwaardig'},
+    {name:'Adres (straat + nr + stad)',correct:'Samengesteld'},{name:'Geboortedatum',correct:'Enkelvoudig'},
+    {name:'Diploma\'s (student heeft er meerdere)',correct:'Meerwaardig'},{name:'Voornaam',correct:'Enkelvoudig'}
+  ],categories:['Enkelvoudig','Samengesteld','Meerwaardig','Afgeleid'],explanation:'Leeftijd is afgeleid. Telefoonnummer en Diploma zijn meerwaardig. Adres is samengesteld. Geboortedatum en Voornaam zijn enkelvoudig.'},
+  {scenario:'Sorteer: sterke entiteit, zwakke entiteit of koppelentiteit?',hint:'Zwak = bestaat niet zonder ouder. Koppel = verbindt twee entiteiten met eigen attributen.',items:[
+    {name:'Klant (eigen KlantID)',correct:'Sterke entiteit'},{name:'LeverLijn (PK bevat LeveringID)',correct:'Zwakke entiteit'},
+    {name:'Inschrijving (StudentID + CursusID + Cijfer)',correct:'Koppelentiteit'},{name:'Product (eigen ProductID)',correct:'Sterke entiteit'},
+    {name:'Kamerinspectie (bestaat enkel via Kamer)',correct:'Zwakke entiteit'}
+  ],categories:['Sterke entiteit','Zwakke entiteit','Koppelentiteit'],explanation:'Klant en Product zijn sterk. LeverLijn en Kamerinspectie zijn zwak. Inschrijving is een koppelentiteit.'},
+  {scenario:'Klant bestelt producten via bestellingen. Sorteer alle begrippen.',hint:'Let op: Bestelling kan als koppelentiteit dienen.',items:[
+    {name:'Klant',correct:'Entiteit'},{name:'Product',correct:'Entiteit'},{name:'Bestelling',correct:'Entiteit/Koppelentiteit'},
+    {name:'KlantNaam',correct:'Attribuut'},{name:'Prijs',correct:'Attribuut'},{name:'Koopt',correct:'Relatie'}
+  ],categories:['Entiteit/Koppelentiteit','Attribuut','Relatie'],explanation:'Klant, Product en Bestelling zijn entiteiten (Bestelling ook koppelentiteit). KlantNaam en Prijs zijn attributen. Koopt is de relatie.'},
+];
+
+// Mode 3: Herken in ERD — gegeven tekst/ERD, beantwoord gerichte vragen
+var conceptHerkenQ=[
+  {scenario:'Gegeven: Persoon(PersoonID, Voornaam, Achternaam, Geboortedatum, Leeftijd*). Het sterretje (*) bij Leeftijd betekent dat het berekend wordt.',svg:`<svg viewBox="0 0 420 120" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="10" y="20" width="140" height="80" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="80" y="46" text-anchor="middle" font-weight="900" font-size="13" fill="#3b5bdb">Persoon</text>
+    <line x1="10" y1="54" x2="150" y2="54" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="80" y="68" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">PersoonID (PK)</text>
+    <text x="80" y="81" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">Voornaam + Achternaam</text>
+    <ellipse cx="270" cy="60" rx="50" ry="18" fill="none" stroke="#276749" stroke-width="2" stroke-dasharray="5,3"/>
+    <text x="270" y="65" text-anchor="middle" font-size="11" fill="#276749" font-weight="800">Leeftijd*</text>
+    <text x="270" y="85" text-anchor="middle" font-size="9" fill="#276749">(afgeleid)</text>
+    <ellipse cx="380" cy="60" rx="50" ry="18" fill="#fff0f6" stroke="#a61e4d" stroke-width="2"/>
+    <ellipse cx="380" cy="60" rx="42" ry="11" fill="none" stroke="#a61e4d" stroke-width="1.5"/>
+    <text x="380" y="55" text-anchor="middle" font-size="10" fill="#a61e4d" font-weight="800">Telefoon</text>
+    <text x="380" y="70" text-anchor="middle" font-size="9" fill="#a61e4d">(meerwaardig)</text>
+  </svg>`,question:'Welk type attribuut is "Leeftijd*"?',options:['Enkelvoudig attribuut','Samengesteld attribuut','Afgeleid attribuut','Meerwaardig attribuut'],correct:2,hint:'Het sterretje (*) of stippellijn duidt op een berekende waarde.',explanation:'"Leeftijd*" is een afgeleid attribuut: berekend uit Geboortedatum. Wordt in ERD weergegeven met een stippelellips of sterretje.'},
+  {scenario:'Zelfde diagram. Het dubbele ellips-symbool bij "Telefoon" heeft een speciale betekenis.',svg:`<svg viewBox="0 0 420 120" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="10" y="20" width="140" height="80" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="80" y="46" text-anchor="middle" font-weight="900" font-size="13" fill="#3b5bdb">Persoon</text>
+    <line x1="10" y1="54" x2="150" y2="54" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="80" y="68" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">PersoonID (PK)</text>
+    <ellipse cx="380" cy="60" rx="50" ry="18" fill="#fff0f6" stroke="#a61e4d" stroke-width="2"/>
+    <ellipse cx="380" cy="60" rx="42" ry="11" fill="none" stroke="#a61e4d" stroke-width="1.5"/>
+    <text x="380" y="55" text-anchor="middle" font-size="10" fill="#a61e4d" font-weight="800">Telefoon</text>
+    <text x="380" y="70" text-anchor="middle" font-size="9" fill="#a61e4d">(meerwaardig)</text>
+  </svg>`,question:'Wat betekent de dubbele ellips bij "Telefoon" in de ERD-notatie?',options:['Het is een afgeleid attribuut','Het is een samengesteld attribuut','Het is een meerwaardig attribuut','Het is de primaire sleutel'],correct:2,hint:'Dubbele ellips = meerdere waarden mogelijk per entiteit.',explanation:'In ERD-notatie staat een dubbele ellips voor een meerwaardig attribuut: één persoon kan meerdere telefoonnummers hebben.'},
+  {scenario:'LeverLijn heeft als PK de combinatie (LeveringID, LijnNr). LeveringID verwijst naar Levering.',svg:`<svg viewBox="0 0 460 130" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="10" y="25" width="130" height="80" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="75" y="50" text-anchor="middle" font-weight="900" font-size="13" fill="#3b5bdb">Levering</text>
+    <line x1="10" y1="58" x2="140" y2="58" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="75" y="72" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">LeveringID (PK)</text>
+    <text x="75" y="85" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">Datum</text>
+    <line x1="140" y1="65" x2="210" y2="65" stroke="#c92a2a" stroke-width="2"/>
+    <rect x="210" y="25" width="150" height="80" rx="10" fill="#ffe3e3" stroke="#c92a2a" stroke-width="2"/>
+    <rect x="214" y="29" width="142" height="72" rx="8" fill="none" stroke="#c92a2a" stroke-width="1.5"/>
+    <text x="285" y="50" text-anchor="middle" font-weight="900" font-size="13" fill="#c92a2a">LeverLijn</text>
+    <line x1="210" y1="58" x2="360" y2="58" stroke="#c92a2a" stroke-width="1.5"/>
+    <text x="285" y="72" text-anchor="middle" font-size="10" fill="#c92a2a" font-family="JetBrains Mono">LijnNr + LeveringID</text>
+    <text x="285" y="85" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">Aantal, Product</text>
+    <text x="185" y="58" text-anchor="middle" font-size="16" fill="#c92a2a">←</text>
+  </svg>`,question:'Waarom heeft LeverLijn een dubbele rechthoek in ERD-notatie?',options:['Omdat het een koppelentiteit is','Omdat het een zwakke entiteit is','Omdat het meerdere PK\'s heeft','Omdat het geen attributen heeft'],correct:1,hint:'De dubbele rechthoek staat voor een entiteit die niet zonder haar ouder kan bestaan.',explanation:'LeverLijn heeft een partiële sleutel (LijnNr) die pas volledig is samen met LeveringID van de ouderentiteit Levering → zwakke entiteit, weergegeven met dubbele rechthoek.'},
+  {scenario:'Een adres bestaat uit: Straat, Huisnummer, Postcode, Stad. Alle vier worden opgeslagen.',svg:`<svg viewBox="0 0 460 120" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="10" y="20" width="120" height="80" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="70" y="46" text-anchor="middle" font-weight="900" font-size="13" fill="#3b5bdb">Klant</text>
+    <line x1="10" y1="54" x2="130" y2="54" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="70" y="70" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">KlantID (PK)</text>
+    <text x="70" y="83" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">Naam</text>
+    <ellipse cx="250" cy="60" rx="42" ry="18" fill="#fff3bf" stroke="#e67700" stroke-width="2"/>
+    <text x="250" y="65" text-anchor="middle" font-size="11" fill="#e67700" font-weight="800">Adres</text>
+    <ellipse cx="360" cy="30" rx="36" ry="13" fill="#f8faff" stroke="#8890b5" stroke-width="1.5"/>
+    <text x="360" y="34" text-anchor="middle" font-size="10" fill="#4a5080">Straat + Nr</text>
+    <ellipse cx="360" cy="60" rx="36" ry="13" fill="#f8faff" stroke="#8890b5" stroke-width="1.5"/>
+    <text x="360" y="64" text-anchor="middle" font-size="10" fill="#4a5080">Postcode</text>
+    <ellipse cx="360" cy="90" rx="36" ry="13" fill="#f8faff" stroke="#8890b5" stroke-width="1.5"/>
+    <text x="360" y="94" text-anchor="middle" font-size="10" fill="#4a5080">Stad</text>
+    <line x1="130" y1="60" x2="208" y2="60" stroke="#e67700" stroke-width="1.5"/>
+    <line x1="292" y1="50" x2="324" y2="35" stroke="#8890b5" stroke-width="1"/>
+    <line x1="292" y1="60" x2="324" y2="60" stroke="#8890b5" stroke-width="1"/>
+    <line x1="292" y1="70" x2="324" y2="85" stroke="#8890b5" stroke-width="1"/>
+  </svg>`,question:'Wat type attribuut is "Adres" in dit diagram?',options:['Enkelvoudig attribuut','Samengesteld attribuut','Meerwaardig attribuut','Afgeleid attribuut'],correct:1,hint:'Het is opgesplitst in deelattributen (Straat+Nr, Postcode, Stad).',explanation:'"Adres" is een samengesteld attribuut: het bestaat uit zinvolle deelattributen. In ERD weergegeven als ellips met sub-ellipsen.'},
+  {scenario:'"Inschrijving" heeft StudentID (FK), CursusID (FK), Datum en Cijfer als eigen attributen.',svg:`<svg viewBox="0 0 500 130" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="5" y="25" width="110" height="70" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="60" y="48" text-anchor="middle" font-weight="900" font-size="12" fill="#3b5bdb">Student</text>
+    <line x1="5" y1="56" x2="115" y2="56" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="60" y="70" text-anchor="middle" font-size="9" fill="#4a5080" font-family="JetBrains Mono">StudentID (PK)</text>
+    <rect x="190" y="20" width="130" height="80" rx="10" fill="#f3f0ff" stroke="#7048e8" stroke-width="2"/>
+    <rect x="194" y="24" width="122" height="72" rx="8" fill="none" stroke="#7048e8" stroke-width="1.5"/>
+    <text x="255" y="45" text-anchor="middle" font-weight="900" font-size="12" fill="#7048e8">Inschrijving</text>
+    <line x1="190" y1="53" x2="320" y2="53" stroke="#7048e8" stroke-width="1.5"/>
+    <text x="255" y="66" text-anchor="middle" font-size="9" fill="#4a5080" font-family="JetBrains Mono">StudentID FK</text>
+    <text x="255" y="77" text-anchor="middle" font-size="9" fill="#4a5080" font-family="JetBrains Mono">CursusID FK</text>
+    <text x="255" y="88" text-anchor="middle" font-size="9" fill="#4a5080" font-family="JetBrains Mono">Datum, Cijfer</text>
+    <rect x="380" y="25" width="110" height="70" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="435" y="48" text-anchor="middle" font-weight="900" font-size="12" fill="#3b5bdb">Cursus</text>
+    <line x1="380" y1="56" x2="490" y2="56" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="435" y="70" text-anchor="middle" font-size="9" fill="#4a5080" font-family="JetBrains Mono">CursusID (PK)</text>
+    <line x1="115" y1="60" x2="190" y2="60" stroke="#7048e8" stroke-width="2"/>
+    <line x1="320" y1="60" x2="380" y2="60" stroke="#7048e8" stroke-width="2"/>
+  </svg>`,question:'Wat is "Inschrijving" in dit model?',options:['Zwakke entiteit','Gewone entiteit zonder bijzonderheid','Koppelentiteit (associatieve entiteit)','Meerwaardig attribuut'],correct:2,hint:'Het verbindt twee entiteiten én heeft eigen attributen.',explanation:'"Inschrijving" koppelt Student en Cursus en heeft eigen attributen (Datum, Cijfer). Dit maakt het een koppelentiteit — ook wel associatieve entiteit of relatie-entiteit.'},
+  {scenario:'Kleur bij een product heeft uitsluitend de waarde "Rood", "Blauw" of "Groen" — geen extra eigenschappen.',svg:`<svg viewBox="0 0 360 110" class="concept-erd-svg" style="font-family:Nunito,sans-serif">
+    <rect x="10" y="20" width="120" height="70" rx="10" fill="#e8ecfb" stroke="#3b5bdb" stroke-width="2"/>
+    <text x="70" y="44" text-anchor="middle" font-weight="900" font-size="13" fill="#3b5bdb">Product</text>
+    <line x1="10" y1="52" x2="130" y2="52" stroke="#3b5bdb" stroke-width="1.5"/>
+    <text x="70" y="65" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">ProductID (PK)</text>
+    <text x="70" y="78" text-anchor="middle" font-size="10" fill="#4a5080" font-family="JetBrains Mono">Naam, Prijs</text>
+    <ellipse cx="280" cy="55" rx="50" ry="18" fill="#e3fafc" stroke="#0c8599" stroke-width="2"/>
+    <text x="280" y="59" text-anchor="middle" font-size="11" fill="#0c8599" font-weight="800">Kleur</text>
+    <line x1="130" y1="55" x2="230" y2="55" stroke="#0c8599" stroke-width="1.5"/>
+  </svg>`,question:'Is "Kleur" hier een entiteit of een attribuut?',options:['Entiteit, want kleuren zijn objecten','Attribuut, want het beschrijft enkel het product','Zwakke entiteit','Koppelentiteit'],correct:1,hint:'Heeft "Kleur" hier eigen sub-eigenschappen of FK-relaties? Nee → attribuut.',explanation:'Zolang Kleur geen eigen properties heeft (enkel een waarde is) blijft het een attribuut van Product. Pas als Kleur eigen data krijgt (hexcode, voorraad...) wordt het een entiteit.'},
+];
+
+// ============ CONCEPTEN LOGIC ============
+var conceptMode='classificeer';
+var conceptCIdx=0,conceptSIdx=0,conceptHIdx=0;
+var conceptAnswered=false,conceptSortState={};
+
+function conceptSwitchMode(m,btn){
+  conceptMode=m;
+  document.querySelectorAll('.concept-mode-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('concept-feedback').className='feedback-box';
+  document.getElementById('concept-hint').className='hint-box';
+  conceptRender();
+}
+
+function conceptRender(){
+  conceptAnswered=false;
+  conceptPickedIdx=-1;
+  conceptHerkenPicked=-1;
+  document.getElementById('concept-feedback').className='feedback-box';
+  document.getElementById('concept-hint').className='hint-box';
+  document.getElementById('concept-check-btn').style.display='';
+  document.getElementById('concept-next-btn').style.display='none';
+  renderStreakDots('concept-streak',streak);
+  if(conceptMode==='classificeer')conceptRenderClassify();
+  else if(conceptMode==='sorteer')conceptRenderSort();
+  else conceptRenderHerken();
+}
+
+function conceptRenderClassify(){
+  var arr=conceptClassifyQ;
+  var idx=conceptCIdx%arr.length;
+  var q=arr[idx];
+  setP('concept-prog','concept-prog-label',idx,arr.length);
+  var L=['A','B','C','D'];
+  var html='<div class="scenario-card"><div class="sc-label">🏷️ Classificeer</div><div class="sc-text">'+q.scenario+'</div></div>';
+  html+='<div class="quiz-options" id="concept-opts">';
+  q.options.forEach(function(o,i){
+    html+='<div class="quiz-opt" id="copt-'+i+'" onclick="conceptPickClassify('+i+',this)"><div class="letter">'+L[i]+'</div><div style="font-size:.88rem;font-weight:700">'+o+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('concept-qbody').innerHTML=html;
+}
+
+var conceptPickedIdx=-1;
+function conceptPickClassify(i,el){
+  if(conceptAnswered)return;
+  conceptPickedIdx=i;
+  document.querySelectorAll('#concept-opts .quiz-opt').forEach(function(b){b.classList.remove('ci-selected');b.style.borderColor='';b.style.background='';});
+  el.style.borderColor='var(--primary)';el.style.background='var(--primary-light)';
+}
+
+function conceptRenderSort(){
+  conceptSortPicked=null;
+  var arr=conceptSortQ;
+  var idx=conceptSIdx%arr.length;
+  var q=arr[idx];
+  setP('concept-prog','concept-prog-label',idx,arr.length);
+  conceptSortState={};
+  q.categories.forEach(function(c){conceptSortState[c]=[];});
+  var html='<div class="scenario-card"><div class="sc-label">📦 Sorteer</div><div class="sc-text">'+q.scenario+'</div></div>';
+  html+='<div style="margin-bottom:14px"><div style="font-size:.78rem;font-weight:900;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Items — klik op een item, kies dan de categorie:</div>';
+  html+='<div id="sort-items" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">';
+  q.items.forEach(function(item,i){
+    html+='<div class="sort-chip" id="sitem-'+i+'" onclick="conceptSortPick('+i+',this)" data-name="'+item.name.replace(/'/g,"\\'")+'">'+item.name+'</div>';
+  });
+  html+='</div>';
+  html+='<div id="sort-zones">';
+  q.categories.forEach(function(cat){
+    html+='<div style="margin-bottom:10px"><div class="sort-zone-label">'+cat+'</div><div class="sort-zone" id="sz-'+cat.replace(/[^a-zA-Z0-9]/g,'_')+'" onclick="conceptSortDrop(\''+cat.replace(/'/g,"\\'")+'\')"><span style="color:var(--text-muted);font-size:.78rem;font-weight:700">Klik hier om te plaatsen</span></div></div>';
+  });
+  html+='</div></div>';
+  document.getElementById('concept-qbody').innerHTML=html;
+}
+
+var conceptSortPicked=null;
+function conceptSortPick(i,el){
+  if(conceptAnswered)return;
+  conceptSortPicked={idx:i,name:el.dataset.name};
+  document.querySelectorAll('#sort-items .sort-chip').forEach(function(c){c.style.background='';c.style.color='';c.style.borderColor='';});
+  el.style.background='var(--primary)';el.style.color='#fff';
+  document.querySelectorAll('.sort-zone').forEach(function(z){z.classList.add('sz-active');});
+}
+function conceptSortDrop(cat){
+  if(!conceptSortPicked||conceptAnswered)return;
+  var idx=conceptSortPicked.idx;
+  var name=conceptSortPicked.name;
+  // Remove from previous zone if re-placing
+  Object.keys(conceptSortState).forEach(function(c){
+    conceptSortState[c]=conceptSortState[c].filter(function(x){return x.idx!==idx;});
+  });
+  conceptSortState[cat].push({idx:idx,name:name});
+  document.querySelectorAll('.sort-zone').forEach(function(z){z.classList.remove('sz-active');});
+  conceptSortPicked=null;
+  // Re-render zones
+  var q=conceptSortQ[conceptSIdx%conceptSortQ.length];
+  q.categories.forEach(function(c){
+    var zid='sz-'+c.replace(/[^a-zA-Z0-9]/g,'_');
+    var zone=document.getElementById(zid);if(!zone)return;
+    zone.innerHTML=conceptSortState[c].length===0?'<span style="color:var(--text-muted);font-size:.78rem;font-weight:700">Klik hier om te plaatsen</span>':
+      conceptSortState[c].map(function(x){return'<span class="sort-chip sc-placed">'+x.name+'</span>';}).join('');
+  });
+  // Reset item color
+  var itemEl=document.getElementById('sitem-'+idx);
+  if(itemEl){itemEl.style.background='var(--primary-light)';itemEl.style.color='var(--primary)';itemEl.style.borderColor='var(--primary)';}
+}
+
+function conceptRenderHerken(){
+  var arr=conceptHerkenQ;
+  var idx=conceptHIdx%arr.length;
+  var q=arr[idx];
+  setP('concept-prog','concept-prog-label',idx,arr.length);
+  var L=['A','B','C','D'];
+  var html='<div class="scenario-card"><div class="sc-label">🔍 Herken in ERD</div><div class="sc-text">'+q.scenario+'</div></div>';
+  html+=q.svg||'';
+  html+='<div class="scenario-card" style="background:var(--card)"><div class="sc-label">❓ Vraag</div><div class="sc-text">'+q.question+'</div></div>';
+  html+='<div class="quiz-options" id="concept-opts-h">';
+  q.options.forEach(function(o,i){
+    html+='<div class="quiz-opt" id="hopt-'+i+'" onclick="conceptPickHerken('+i+',this)"><div class="letter">'+L[i]+'</div><div style="font-size:.88rem;font-weight:700">'+o+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('concept-qbody').innerHTML=html;
+}
+
+var conceptHerkenPicked=-1;
+function conceptPickHerken(i,el){
+  if(conceptAnswered)return;
+  conceptHerkenPicked=i;
+  document.querySelectorAll('#concept-opts-h .quiz-opt').forEach(function(b){b.style.borderColor='';b.style.background='';});
+  el.style.borderColor='var(--primary)';el.style.background='var(--primary-light)';
+}
+
+function conceptCheck(){
+  if(conceptAnswered)return;
+  var fb=document.getElementById('concept-feedback');
+  if(conceptMode==='classificeer'){
+    if(conceptPickedIdx<0){fb.textContent='⚠️ Kies een antwoord!';fb.className='feedback-box show warn';return;}
+    conceptAnswered=true;
+    var q=conceptClassifyQ[conceptCIdx%conceptClassifyQ.length];
+    var chosen=q.options[conceptPickedIdx];
+    var ok=chosen===q.correct;
+    document.querySelectorAll('#concept-opts .quiz-opt')[q.options.indexOf(q.correct)].classList.add('correct');
+    if(!ok)document.getElementById('copt-'+conceptPickedIdx).classList.add('wrong');
+    if(ok){fb.textContent='✅ '+q.explanation;fb.className='feedback-box show ok';addXP(10);trackM('concepten',true);}
+    else{fb.textContent='❌ Juist: "'+q.correct+'". '+q.explanation;fb.className='feedback-box show bad';resetStreak();trackM('concepten',false);srEnq('concepten',conceptCIdx%conceptClassifyQ.length);}
+    conceptPickedIdx=-1;
+  } else if(conceptMode==='sorteer'){
+    var q=conceptSortQ[conceptSIdx%conceptSortQ.length];
+    var allPlaced=q.items.every(function(item){
+      return Object.values(conceptSortState).some(function(arr){return arr.some(function(x){return x.name===item.name;});});
+    });
+    if(!allPlaced){fb.textContent='⚠️ Plaats alle items eerst!';fb.className='feedback-box show warn';return;}
+    conceptAnswered=true;
+    var correct=0;
+    q.items.forEach(function(item,i){
+      var placed=null;
+      Object.keys(conceptSortState).forEach(function(c){if(conceptSortState[c].some(function(x){return x.name===item.name;}))placed=c;});
+      var ok=placed===item.correct;
+      if(ok)correct++;
+      var el=document.getElementById('sitem-'+i);
+      if(el){el.style.background=ok?'var(--green)':'var(--red)';el.style.color='#fff';el.style.borderColor=ok?'var(--green)':'var(--red)';}
+    });
+    var pct=Math.round(correct/q.items.length*100);
+    var allOk=correct===q.items.length;
+    if(allOk){fb.textContent='✅ Alles correct! '+q.explanation;fb.className='feedback-box show ok';addXP(20);trackM('concepten',true);}
+    else{fb.textContent='❌ '+correct+'/'+q.items.length+' correct. '+q.explanation;fb.className='feedback-box show bad';if(pct<50)resetStreak();trackM('concepten',false);srEnq('concepten',conceptSIdx%conceptSortQ.length);}
+  } else {
+    if(conceptHerkenPicked<0){fb.textContent='⚠️ Kies een antwoord!';fb.className='feedback-box show warn';return;}
+    conceptAnswered=true;
+    var q=conceptHerkenQ[conceptHIdx%conceptHerkenQ.length];
+    var ok=conceptHerkenPicked===q.correct;
+    document.querySelectorAll('#concept-opts-h .quiz-opt')[q.correct].classList.add('correct');
+    if(!ok)document.getElementById('hopt-'+conceptHerkenPicked).classList.add('wrong');
+    if(ok){fb.textContent='✅ '+q.explanation;fb.className='feedback-box show ok';addXP(10);trackM('concepten',true);}
+    else{fb.textContent='❌ '+q.explanation;fb.className='feedback-box show bad';resetStreak();trackM('concepten',false);srEnq('concepten',conceptHIdx%conceptHerkenQ.length);}
+    conceptHerkenPicked=-1;
+  }
+  renderStreakDots('concept-streak',streak);
+  document.getElementById('concept-check-btn').style.display='none';
+  document.getElementById('concept-next-btn').style.display='';
+}
+
+function conceptNext(){
+  if(conceptMode==='classificeer'){conceptCIdx++;}
+  else if(conceptMode==='sorteer'){conceptSIdx++;}
+  else{conceptHIdx++;}
+  saveD();conceptRender();
+}
+
+function conceptToggleHint(){
+  var h=document.getElementById('concept-hint');
+  var hint='';
+  if(conceptMode==='classificeer')hint=conceptClassifyQ[conceptCIdx%conceptClassifyQ.length].hint;
+  else if(conceptMode==='sorteer')hint=conceptSortQ[conceptSIdx%conceptSortQ.length].hint;
+  else hint=conceptHerkenQ[conceptHIdx%conceptHerkenQ.length].hint;
+  h.classList.contains('show')?h.classList.remove('show'):(h.textContent='💡 '+hint,h.classList.add('show'));
+}
+
+// ============ DASHBOARD ============
+var modInfo=[{key:'drag',icon:'🔗',name:'Verbind'},{key:'kard',icon:'🎯',name:'Kardinaliteit'},{key:'opt',icon:'⚡',name:'Optionaliteit'},{key:'quiz',icon:'📝',name:'Quiz'},{key:'fk',icon:'🔑',name:'FK Plaatsen'},{key:'fout',icon:'🐛',name:'Fout Zoeken'},{key:'norm',icon:'🔢',name:'Normalisatie'},{key:'dataread',icon:'🔍',name:'Data→ERD'},{key:'crows',icon:'🐦',name:"Crow's Foot"},{key:'concepten',icon:'🧩',name:'Concepten'}];
+function renderDashboard(){var xE=document.getElementById('dash-xp-total'),g=document.getElementById('dash-grid');if(!xE||!g)return;xE.textContent=xp+' XP';var ta=Object.values(mastery).reduce(function(s,m){return s+(m.total||0);},0);var tc=Object.values(mastery).reduce(function(s,m){return s+(m.correct||0);},0);var op=ta>0?Math.round(tc/ta*100):0;var st=document.getElementById('dash-summary-text');if(st)st.textContent=ta===0?'Begin met oefenen!':ta+' vragen — '+op+'% correct — Level '+level;g.innerHTML='';modInfo.forEach(function(mod){var m=mastery[mod.key]||{correct:0,total:0};var pct=getMPct(mod.key);var c=document.createElement('div');c.className='dash-card';c.innerHTML='<div class="dash-card-header"><div class="dash-card-icon">'+mod.icon+'</div><div class="dash-card-title">'+mod.name+'</div></div><div class="dash-card-stats"><div class="dash-stat"><div class="dash-stat-val">'+m.correct+'</div><div class="dash-stat-label">Correct</div></div><div class="dash-stat"><div class="dash-stat-val">'+m.total+'</div><div class="dash-stat-label">Totaal</div></div><div class="dash-stat"><div class="dash-stat-val">'+pct+'%</div><div class="dash-stat-label">Score</div></div></div><div class="dash-bar"><div class="dash-bar-fill" style="width:'+pct+'%;background:'+(pct>=80?'var(--green)':pct>=50?'var(--yellow)':'var(--red)')+'"></div></div><div class="dash-mastery">'+(pct>=80?'⭐ Beheerst':pct>=50?'📈 Bezig':'🎯 Oefenen')+'</div>';g.appendChild(c);});}
+
+// ============ MIX ENGINE ============
+var mixCount=10,mixQueue=[],mixCur=0,mixLog=[],mixAnswered=false,mixSelected=null;
+function mixPickCount(card){document.querySelectorAll('#mix-cfg-grid .exam-cfg-card').forEach(function(c){c.classList.remove('sel');});card.classList.add('sel');mixCount=parseInt(card.dataset.count)||0;}
+function exBuildPool(){var pool=[];kardQuestions.forEach(function(q,i){pool.push({src:'kard',idx:i,label:'Kardinaliteit'});});optQuestions.forEach(function(q,i){pool.push({src:'opt',idx:i,label:'Optionaliteit'});});quizQuestions.forEach(function(q,i){pool.push({src:'quiz',idx:i,label:'Scenario Quiz'});});fkQuestions.forEach(function(q,i){pool.push({src:'fk',idx:i,label:'FK Plaatsen'});});foutQuestions.forEach(function(q,i){pool.push({src:'fout',idx:i,label:'Fout Zoeken'});});normQuestions.forEach(function(q,i){pool.push({src:'norm',idx:i,label:'Normalisatie'});});crowsQuestions.forEach(function(q,i){pool.push({src:'crows',idx:i,label:"Crow's Foot"});});
+  conceptClassifyQ.forEach(function(q,i){pool.push({src:'concepten',idx:i,label:'Concepten'});});for(var i=pool.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=pool[i];pool[i]=pool[j];pool[j]=t;}return pool;}
+
+// FIX 2: renamed inner q vars to qd to avoid var redeclaration issues
+function exGetData(item){
+  var s=item.src,i=item.idx;
+  if(s==='kard'){var qd=kardQuestions[i];return{scenario:qd.scenario,diag:'<div class="diagram-area" style="margin-bottom:14px"><div class="ent-box"><div class="ent-name">'+qd.entityA+'</div><div class="ent-attrs">'+qd.attrsA.join('<br>')+'</div></div><div class="rel-connector"><div class="rel-line-wrap"><div class="rel-line"></div></div><div class="rel-name">'+qd.relation+'</div></div><div class="ent-box"><div class="ent-name">'+qd.entityB+'</div><div class="ent-attrs">'+qd.attrsB.join('<br>')+'</div></div></div>',type:'choice4',opts:[{v:'1:1',l:'1:1'},{v:'1:N',l:'1:N'},{v:'N:1',l:'N:1'},{v:'N:M',l:'N:M'}],correct:qd.correct,hint:qd.hint,exp:qd.explanation};}
+  if(s==='opt'){var qd=optQuestions[i];var cA=qd.correctA==='verplicht'?'v':'o';var cB=qd.correctB==='verplicht'?'v':'o';return{scenario:qd.scenario,diag:'',type:'quiz4',opts:[{v:'vv',l:qd.entityA+': verplicht, '+qd.entityB+': verplicht'},{v:'vo',l:qd.entityA+': verplicht, '+qd.entityB+': optioneel'},{v:'ov',l:qd.entityA+': optioneel, '+qd.entityB+': verplicht'},{v:'oo',l:qd.entityA+': optioneel, '+qd.entityB+': optioneel'}],correct:cA+cB,hint:qd.hint,exp:qd.explanation};}
+  if(s==='quiz'){var qd=quizQuestions[i];return{scenario:qd.scenario,diag:'',type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o.label+(o.desc?' — '+o.desc:'')};}),correct:String(qd.correct),hint:qd.hint,exp:qd.explanation};}
+  if(s==='fk'){var qd=fkQuestions[i];return{scenario:qd.scenario,diag:'',type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o};}),correct:String(qd.correct),hint:qd.hint,exp:qd.explanation};}
+  if(s==='fout'){var qd=foutQuestions[i];var dh='<div style="background:var(--card);border:2px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px">';(qd.diagram||[]).forEach(function(d){dh+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span class="ent-name" style="color:var(--red)">'+d.a+'</span> <strong style="color:var(--red)">'+d.card+'</strong> <span class="ent-name" style="color:var(--red)">'+d.b+'</span> <span style="font-size:.72rem;color:var(--text-muted)">'+d.fkInfo+'</span></div>';});dh+='</div>';return{scenario:qd.scenario+' — '+qd.question,diag:dh,type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o};}),correct:String(qd.correct),hint:qd.hint,exp:qd.explanation};}
+  if(s==='norm'){var qd=normQuestions[i];return{scenario:qd.scenario,diag:qd.table?'<div style="margin-bottom:12px">'+qd.table+'</div>':'',type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o};}),correct:String(qd.correct),hint:qd.hint,exp:qd.explanation};}
+  if(s==='crows'){var qd=crowsQuestions[i];return{scenario:qd.question,diag:'<div class="diagram-area" style="margin-bottom:14px"><div class="ent-box"><div class="ent-name">'+qd.diagram.a+'</div></div><div class="rel-connector"><div class="rel-line-wrap"><div class="rel-end" style="font-size:1.1rem;font-weight:900;color:var(--primary)">'+qd.diagram.symA+'</div><div class="rel-line"></div><div class="rel-end" style="font-size:1.1rem;font-weight:900;color:var(--primary)">'+qd.diagram.symB+'</div></div></div><div class="ent-box"><div class="ent-name">'+qd.diagram.b+'</div></div></div>',type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o};}),correct:String(qd.correct),hint:qd.hint,exp:qd.explanation};}
+  if(s==='concepten'){var qd=conceptClassifyQ[i];return{scenario:qd.scenario,diag:'',type:'quiz4',opts:qd.options.map(function(o,j){return{v:String(j),l:o};}),correct:String(qd.options.indexOf(qd.correct)),hint:qd.hint,exp:qd.explanation};}
+  return null;
+}
+
+function mixStart(){var fp=exBuildPool();var cnt=mixCount===0?fp.length:mixCount;mixQueue=fp.slice(0,cnt);mixCur=0;mixLog=[];document.getElementById('mix-start').style.display='none';document.getElementById('mix-qscreen').style.display='';document.getElementById('mix-results').style.display='none';mixRQ();}
+function mixRQ(){mixAnswered=false;mixSelected=null;var item=mixQueue[mixCur];var d=exGetData(item);if(!d){mixCur++;if(mixCur<mixQueue.length)mixRQ();else mixShowRes();return;}var tot=mixQueue.length;document.getElementById('mix-qnum').textContent='Vraag '+(mixCur+1)+'/'+tot;document.getElementById('mix-qtype').textContent=item.label;document.getElementById('mix-prog').style.width=(mixCur/tot*100)+'%';document.getElementById('mix-prog-lbl').textContent=mixCur+'/'+tot;document.getElementById('mix-feedback').className='feedback-box';document.getElementById('mix-hint').className='hint-box';document.getElementById('mix-check-btn').style.display='';document.getElementById('mix-next-btn').style.display='none';var body=document.getElementById('mix-qbody');body.innerHTML='';var sc=document.createElement('div');sc.className='scenario-card';sc.innerHTML='<div class="sc-label">'+item.label+'</div><div class="sc-text">'+d.scenario+'</div>';body.appendChild(sc);if(d.diag){var dv=document.createElement('div');dv.innerHTML=d.diag;body.appendChild(dv);}var od=document.createElement('div');od.id='mix-opts';od.className=d.type==='choice4'?'choices-grid':'quiz-options';var L=['A','B','C','D'];d.opts.forEach(function(o,oi){var el=d.type==='choice4'?document.createElement('button'):document.createElement('div');el.className=d.type==='choice4'?'choice-btn':'quiz-opt';if(d.type==='choice4')el.textContent=o.l;else el.innerHTML='<div class="letter">'+L[oi]+'</div><div style="font-size:.88rem;font-weight:700">'+o.l+'</div>';el.addEventListener('click',function(){mixSel(el,o.v);});od.appendChild(el);});body.appendChild(od);}
+function mixSel(el,val){if(mixAnswered)return;mixSelected=val;document.getElementById('mix-opts').querySelectorAll('.choice-btn,.quiz-opt').forEach(function(b){b.classList.remove('selected');b.style.borderColor='';b.style.background='';});el.classList.add('selected');el.style.borderColor='var(--primary)';el.style.background='var(--primary-light)';}
+function mixCheck(){if(mixAnswered)return;if(mixSelected===null){document.getElementById('mix-feedback').textContent='⚠️ Kies een antwoord!';document.getElementById('mix-feedback').className='feedback-box show warn';return;}mixAnswered=true;var item=mixQueue[mixCur],d=exGetData(item),ok=mixSelected===d.correct;var correctLabel=d.opts.filter(function(o){return o.v===d.correct;}).map(function(o){return o.l;})[0]||d.correct;mixLog.push({item:item,ok:ok,sel:mixSelected,correct:d.correct,correctLabel:correctLabel,scenario:d.scenario,exp:d.exp});var fb=document.getElementById('mix-feedback');if(ok){fb.textContent='✅ '+(d.exp||'');fb.className='feedback-box show ok';addXP(10);trackM(item.src,true);}else{fb.textContent='❌ Juist: '+correctLabel+'. '+(d.exp||'');fb.className='feedback-box show bad';resetStreak();trackM(item.src,false);}document.getElementById('mix-check-btn').style.display='none';document.getElementById('mix-next-btn').style.display='';}
+function mixHint(){var d=exGetData(mixQueue[mixCur]);var h=document.getElementById('mix-hint');h.classList.contains('show')?h.classList.remove('show'):(h.textContent='💡 '+(d&&d.hint?d.hint:'Geen hint.'),h.classList.add('show'));}
+function mixNext(){mixCur++;if(mixCur>=mixQueue.length){mixShowRes();return;}mixRQ();}
+function mixShowRes(){document.getElementById('mix-qscreen').style.display='none';document.getElementById('mix-results').style.display='';var tot=mixLog.length,cor=mixLog.filter(function(l){return l.ok;}).length;var pct=tot>0?Math.round(cor/tot*100):0;var col=pct>=80?'var(--green)':pct>=55?'var(--yellow)':'var(--red)';document.getElementById('mix-ring').style.borderColor=col;document.getElementById('mix-ring-pct').textContent=pct+'%';document.getElementById('mix-ring-pct').style.color=col;document.getElementById('mix-res-title').textContent=(pct>=90?'🏆 Uitstekend!':pct>=75?'🎉 Goed gedaan!':pct>=55?'📚 Redelijk':'💪 Blijf oefenen!');document.getElementById('mix-res-sub').textContent=cor+'/'+tot+' correct';var byT={};mixLog.forEach(function(l){var t=l.item.label;if(!byT[t])byT[t]={c:0,t:0};byT[t].t++;if(l.ok)byT[t].c++;});var bd=document.getElementById('mix-breakdown');bd.innerHTML='';Object.keys(byT).forEach(function(t){var d=byT[t],p=Math.round(d.c/d.t*100),c=p>=75?'var(--green)':p>=50?'var(--yellow)':'var(--red)';bd.innerHTML+='<div class="exam-bd-item"><div class="exam-bd-type">'+t+'</div><div class="exam-bd-score" style="color:'+c+'">'+d.c+'/'+d.t+'</div></div>';});var rv=document.getElementById('mix-review');rv.innerHTML='<div style="font-size:.92rem;font-weight:900;margin-bottom:10px">📋 Overzicht</div>';mixLog.forEach(function(l){var ic=l.ok?'✅':'❌';var selLabel=l.ok?'Correct':'Jouw antwoord was fout · Juist: '+(l.correctLabel||l.correct);rv.innerHTML+='<div class="exam-rv-item '+(l.ok?'ok':'fail')+'"><span style="font-size:.95rem;flex-shrink:0">'+ic+'</span><div style="font-weight:600;color:var(--text-mid);line-height:1.45;font-size:.83rem"><div>'+(l.scenario?l.scenario.substring(0,80):'')+'</div><div style="font-size:.75rem;margin-top:2px;font-weight:800">'+selLabel+'</div></div></div>';});}
+
+// FIX 7: mixRestart simplified count check
+function mixRestart(){
+  document.getElementById('mix-results').style.display='none';
+  document.getElementById('mix-qscreen').style.display='none';
+  document.getElementById('mix-start').style.display='';
+  document.querySelectorAll('#mix-cfg-grid .exam-cfg-card').forEach(function(c){
+    var cardVal=parseInt(c.dataset.count);
+    c.classList.toggle('sel', cardVal===mixCount);
+  });
+}
+
+// FIX 8: thToggle closes other open accordions (one-at-a-time)
+function thToggle(card){
+  var body=card.querySelector('.th-body');
+  var arrow=card.querySelector('.th-arrow');
+  var willOpen=body.style.display!=='block';
+  // Close all others first
+  document.querySelectorAll('#theorie-accordion .ref-card').forEach(function(other){
+    var ob=other.querySelector('.th-body');
+    var oa=other.querySelector('.th-arrow');
+    if(ob&&ob!==body){ob.style.display='none';if(oa)oa.textContent='▼';}
+  });
+  body.style.display=willOpen?'block':'none';
+  arrow.textContent=willOpen?'▲':'▼';
+}
+
+// ============ PERSISTENCE — FIX 1: removed eval(), explicit index mapping ============
+var __st=null;function saveD(){if(__st)clearTimeout(__st);__st=setTimeout(saveP,200);}
+function saveP(){try{var d={xp:xp,streak:streak,level:level,kardIdx:kardIdx,optIdx:optIdx,quizIdx:quizIdx,dragIdx:dragIdx,fkIdx:fkIdx,foutIdx:foutIdx,normIdx:normIdx,crowsIdx:crowsIdx,drIdx:drIdx,drMode:drMode,conceptCIdx:conceptCIdx,conceptSIdx:conceptSIdx,conceptHIdx:conceptHIdx,mastery:mastery,srQueues:srQueues,srSeen:{}};Object.keys(srSeen).forEach(function(k){d.srSeen[k]=Array.from(srSeen[k]||[]);});localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}catch(e){}}
+function loadP(){
+  try{
+    var r=localStorage.getItem(STORAGE_KEY);if(!r)return;
+    var d=JSON.parse(r);
+    // FIX 1: explicit mapping instead of eval()
+    if(typeof d.xp==='number')xp=d.xp;
+    if(typeof d.streak==='number')streak=d.streak;
+    if(typeof d.level==='number')level=d.level;
+    if(typeof d.kardIdx==='number')kardIdx=d.kardIdx;
+    if(typeof d.optIdx==='number')optIdx=d.optIdx;
+    if(typeof d.quizIdx==='number')quizIdx=d.quizIdx;
+    if(typeof d.dragIdx==='number')dragIdx=d.dragIdx;
+    if(typeof d.fkIdx==='number')fkIdx=d.fkIdx;
+    if(typeof d.foutIdx==='number')foutIdx=d.foutIdx;
+    if(typeof d.normIdx==='number')normIdx=d.normIdx;
+    if(typeof d.crowsIdx==='number')crowsIdx=d.crowsIdx;
+    if(typeof d.drIdx==='number')drIdx=d.drIdx;
+    if(typeof d.drMode==='string')drMode=d.drMode;
+    if(typeof d.conceptCIdx==='number')conceptCIdx=d.conceptCIdx;
+    if(typeof d.conceptSIdx==='number')conceptSIdx=d.conceptSIdx;
+    if(typeof d.conceptHIdx==='number')conceptHIdx=d.conceptHIdx;
+    if(d.mastery)Object.keys(d.mastery).forEach(function(k){if(mastery[k]){mastery[k].correct=d.mastery[k].correct||0;mastery[k].total=d.mastery[k].total||0;}});
+    if(d.srQueues)Object.keys(d.srQueues).forEach(function(k){if(srQueues[k]!==undefined)srQueues[k]=d.srQueues[k]||[];});
+    if(d.srSeen)Object.keys(d.srSeen).forEach(function(k){if(srSeen[k]!==undefined)srSeen[k]=new Set(d.srSeen[k]||[]);});
+    document.getElementById('xpVal').textContent=xp;
+    document.getElementById('streakVal').textContent=streak;
+    document.getElementById('levelBadge').textContent='LVL '+level;
+  }catch(e){}
+}
+function showResetDialog(){document.getElementById('reset-dialog').style.display='';document.getElementById('reset-error').style.display='none';document.getElementById('reset-code-input').value='';}
+function hideResetDialog(){document.getElementById('reset-dialog').style.display='none';}
+// FIX 10: confirmReset now also calls drInit()
+function confirmReset(){
+  if(document.getElementById('reset-code-input').value.trim()===RESET_CODE){
+    hideResetDialog();
+    xp=0;streak=0;level=1;
+    kardIdx=0;optIdx=0;quizIdx=0;dragIdx=0;fkIdx=0;foutIdx=0;normIdx=0;crowsIdx=0;
+    drIdx=0;drMode='data2erd';
+    conceptCIdx=0;conceptSIdx=0;conceptHIdx=0;
+    Object.keys(mastery).forEach(function(k){mastery[k].correct=0;mastery[k].total=0;});
+    Object.keys(srQueues).forEach(function(k){srQueues[k]=[];});
+    Object.keys(srSeen).forEach(function(k){srSeen[k]=new Set();});
+    localStorage.removeItem(STORAGE_KEY);
+    document.getElementById('xpVal').textContent='0';
+    document.getElementById('streakVal').textContent='0';
+    document.getElementById('levelBadge').textContent='LVL 1';
+    initDrag();initKard();initOpt();initQuiz();initFK();initFout();initNorm();initCrows();
+    drInit(); // FIX 10: was missing
+    ['drag','kard','opt','quiz','fk','fout','norm','crows','concept'].forEach(function(m){renderStreakDots(m+'-streak',0);});
+    renderDashboard();
+  }else{
+    document.getElementById('reset-error').style.display='';
+    document.getElementById('reset-code-input').value='';
+  }
+}
+
+// ============ INIT ============
+function init(){loadP();initDrag();initKard();initOpt();initQuiz();initFK();initFout();initNorm();initCrows();drInit();['drag','kard','opt','quiz','fk','fout','norm','crows','concept'].forEach(function(m){renderStreakDots(m+'-streak',streak);});}
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
